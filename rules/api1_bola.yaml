@@ -1,0 +1,7 @@
+id: API1-2023-BOLA-001
+name: Broken Object Level Authorization
+severity: critical
+owasp: API1:2023
+cwe: 639
+description: Проверка доступа к чужим объектам через подмену ID
+recommendation: "Реализовать проверку прав доступа на уровне объектов"

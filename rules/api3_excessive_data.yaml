@@ -1,0 +1,18 @@
+id: API3-2023-EDE-001
+name: Excessive Data Exposure
+severity: medium
+owasp: API3:2023
+cwe: 200
+description: Проверка на раскрытие чувствительных данных
+conditions:
+  - type: schema_check
+    sensitive_fields:
+      - password
+      - email
+      - phone
+      - address
+      - token
+      - secret
+      - ssn
+      - credit_card
+recommendation: "Возвращать только необходимые поля для текущей роли"

@@ -1,0 +1,14 @@
+id: API2-2023-AUTH-001
+name: Broken Authentication
+severity: high
+owasp: API2:2023
+cwe: 306
+description: Проверка слабой аутентификации
+conditions:
+  - type: invalid_token
+    test_tokens:
+      - "invalid_token_12345"
+      - "expired_token"
+      - "none"
+    expected_status: [401, 403]
+recommendation: "Реализовать правильную валидацию JWT токенов"

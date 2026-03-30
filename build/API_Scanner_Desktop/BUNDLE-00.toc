@@ -1,0 +1,3 @@
+([('API_Scanner_Desktop',
+   '/Users/lenovo1/api-scanner-new/dist/API_Scanner_Desktop',
+   'EXECUTABLE')],)

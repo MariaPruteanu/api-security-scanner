@@ -1,0 +1,16 @@
+id: API6-2023-MA-001
+name: Mass Assignment
+severity: high
+owasp: API6:2023
+cwe: 915
+description: Проверка на массовое присвоение полей
+conditions:
+  - type: payload_fuzz
+    method: PATCH
+    test_fields:
+      - isAdmin: true
+      - role: admin
+      - privileges: full
+      - isSuperuser: true
+    check_response: true
+recommendation: "Использовать whitelist полей для обновления"
