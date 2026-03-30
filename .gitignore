@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build files
+build/
+dist/
+*.spec
+
+# Sensitive data
+users.db
+*.sqlite
+*.sqlite3
+.env
+config.local.yaml
+*.log
+
+# Scan results (may contain sensitive data)
+output/reports/*.html
+output/reports/*.json
+output/reports/*.csv
+
+# Test coverage
+.pytest_cache/
+.coverage
+htmlcov/
