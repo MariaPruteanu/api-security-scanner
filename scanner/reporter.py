@@ -20,7 +20,7 @@ class HTMLReporter:
         print(f"📄 Отчёт сохранён: {filename}")
     
     def _generate_html(self) -> str:
-        return f"""<!DOCTYPE html>
+        html = f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
