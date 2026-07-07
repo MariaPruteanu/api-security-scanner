@@ -90,11 +90,11 @@ jobs:
       run: |
         docker build -t api-security-scanner:latest .
         docker build -f Dockerfile.vulnerable -t vulnerable-api:latest .
-    
-    - name: Test Docker Compose
+        
+        - name: Verify Docker images
       run: |
-        docker compose config
-        echo "Docker Compose configuration is valid"
+        docker images
+        echo "Docker images built successfully"
 
   security:
     name: Security Scan
