@@ -1,0 +1,12 @@
+id: API3-2023-EXCESSIVE-003
+name: Excessive Data in Headers
+severity: medium
+owasp: API3:2023
+cwe: 200
+description: Проверка на раскрытие чувствительных данных в заголовках ответа
+conditions:
+- type: excessive_data_headers
+  check_headers:
+  - X-User-Password
+  - X-Internal-Token
+recommendation: Не передавать чувствительные данные в заголовках HTTP

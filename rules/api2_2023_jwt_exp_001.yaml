@@ -1,0 +1,10 @@
+id: API2-2023-JWT-EXP-001
+name: JWT Missing Expiration
+severity: high
+owasp: API2:2023
+cwe: 613
+description: Проверка наличия срока действия у JWT токена
+conditions:
+- type: jwt_expiration
+  check_claim: exp
+recommendation: Всегда устанавливать и проверять срок действия (exp) JWT токенов

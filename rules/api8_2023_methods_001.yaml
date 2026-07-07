@@ -1,0 +1,16 @@
+id: API8-2023-METHODS-001
+name: Unsafe HTTP Methods
+severity: medium
+owasp: API8:2023
+cwe: 650
+description: Проверка поддержки небезопасных HTTP методов
+conditions:
+- type: http_methods
+  methods:
+  - TRACE
+  - PUT
+  - DELETE
+  expected_status:
+  - 405
+  - 501
+recommendation: Отключить ненужные HTTP методы на уровне веб-сервера

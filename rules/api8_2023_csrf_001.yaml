@@ -1,0 +1,14 @@
+id: API8-2023-CSRF-001
+name: Missing CSRF Protection
+severity: medium
+owasp: API8:2023
+cwe: 352
+description: Проверка наличия CSRF-токенов для изменяющих запросов
+conditions:
+- type: csrf
+  methods:
+  - POST
+  - PUT
+  - DELETE
+  check_header: X-CSRF-Token
+recommendation: Требовать CSRF-токен для всех изменяющих состояние запросов

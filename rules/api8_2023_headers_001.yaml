@@ -1,0 +1,14 @@
+id: API8-2023-HEADERS-001
+name: Missing Security Headers
+severity: medium
+owasp: API8:2023
+cwe: 693
+description: Проверка наличия обязательных заголовков безопасности
+conditions:
+- type: missing_headers
+  headers:
+  - Strict-Transport-Security
+  - X-Frame-Options
+  - X-Content-Type-Options
+  - Content-Security-Policy
+recommendation: Настроить отдачу заголовков безопасности на уровне веб-сервера

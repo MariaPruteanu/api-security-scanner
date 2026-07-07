@@ -1,0 +1,11 @@
+id: API8-2023-HSTS-001
+name: Missing HSTS Header
+severity: medium
+owasp: API8:2023
+cwe: 523
+description: Проверка наличия заголовка Strict-Transport-Security
+conditions:
+- type: hsts
+  check_header: Strict-Transport-Security
+  expected_pattern: max-age=
+recommendation: Добавить заголовок Strict-Transport-Security с достаточным max-age

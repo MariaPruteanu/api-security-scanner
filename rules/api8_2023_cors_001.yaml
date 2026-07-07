@@ -1,0 +1,12 @@
+id: API8-2023-CORS-001
+name: CORS Misconfiguration
+severity: high
+owasp: API8:2023
+cwe: 942
+description: Проверка на слишком разрешительную CORS политику
+conditions:
+- type: cors
+  origin: https://evil.com
+  check_header: Access-Control-Allow-Origin
+  expected_value: '*'
+recommendation: Настроить строгий whitelist доменов в CORS

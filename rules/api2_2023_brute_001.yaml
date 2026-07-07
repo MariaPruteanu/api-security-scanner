@@ -1,0 +1,12 @@
+id: API2-2023-BRUTE-001
+name: Brute Force Protection
+severity: high
+owasp: API2:2023
+cwe: 307
+description: Проверка защиты от перебора паролей
+conditions:
+- type: brute_force
+  endpoint: /login
+  attempts: 10
+  expected_status: 429
+recommendation: Внедрить ограничение попыток входа и CAPTCHA

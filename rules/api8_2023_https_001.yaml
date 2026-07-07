@@ -1,0 +1,10 @@
+id: API8-2023-HTTPS-001
+name: Missing HTTPS Enforcement
+severity: high
+owasp: API8:2023
+cwe: 319
+description: Проверка принудительного использования HTTPS
+conditions:
+- type: https_enforcement
+  expected_redirect: true
+recommendation: Настроить редирект всех HTTP-запросов на HTTPS

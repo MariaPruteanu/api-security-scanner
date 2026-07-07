@@ -1,0 +1,13 @@
+id: API8-2023-COOKIES-001
+name: Insecure Cookie Flags
+severity: medium
+owasp: API8:2023
+cwe: 614
+description: Проверка флагов Secure и HttpOnly у cookies
+conditions:
+- type: cookie_flags
+  check_flags:
+  - Secure
+  - HttpOnly
+  - SameSite
+recommendation: Устанавливать флаги Secure, HttpOnly и SameSite=Strict для всех cookies

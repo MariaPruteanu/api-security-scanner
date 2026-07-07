@@ -1,0 +1,11 @@
+id: API4-2023-GRAPHQL-DEPTH-001
+name: GraphQL Query Depth Limit
+severity: medium
+owasp: API4:2023
+cwe: 770
+description: Проверка ограничения глубины запросов GraphQL
+conditions:
+- type: graphql_depth
+  depth: 20
+  expected_status: 400
+recommendation: Ограничить максимальную глубину и сложность запросов GraphQL

@@ -1,0 +1,16 @@
+id: API8-2023-CMD-001
+name: Command Injection
+severity: critical
+owasp: API8:2023
+cwe: 78
+description: Проверка параметров на внедрение команд ОС
+conditions:
+- type: command_injection
+  payloads:
+  - ; ls -la
+  - '| cat /etc/passwd'
+  - '`whoami`'
+  expected_status:
+  - 400
+  - 500
+recommendation: Никогда не передавать пользовательский ввод в системные команды

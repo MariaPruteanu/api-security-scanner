@@ -1,0 +1,10 @@
+id: API8-2023-CLICKJACK-001
+name: Missing X-Frame-Options
+severity: medium
+owasp: API8:2023
+cwe: 1021
+description: Проверка наличия заголовка защиты от кликджекинга
+conditions:
+- type: clickjacking
+  check_header: X-Frame-Options
+recommendation: 'Добавить заголовок X-Frame-Options: DENY или SAMEORIGIN'

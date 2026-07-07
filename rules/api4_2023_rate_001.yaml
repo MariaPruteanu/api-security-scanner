@@ -1,0 +1,12 @@
+id: API4-2023-RATE-001
+name: Unrestricted Resource Consumption
+severity: medium
+owasp: API4:2023
+cwe: 770
+description: Проверка отсутствия ограничения частоты запросов
+conditions:
+- type: rate_limit
+  requests_count: 100
+  time_window: 10
+  expected_status: 429
+recommendation: Внедрить ограничение частоты запросов (Rate Limiting)

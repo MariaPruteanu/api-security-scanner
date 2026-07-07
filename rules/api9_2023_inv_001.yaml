@@ -1,0 +1,16 @@
+id: API9-2023-INV-001
+name: Deprecated Endpoints Active
+severity: low
+owasp: API9:2023
+cwe: 1104
+description: Проверка на использование устаревших версий API
+conditions:
+- type: deprecated_api
+  versions:
+  - v1
+  - beta
+  - alpha
+  expected_status:
+  - 410
+  - 404
+recommendation: Отключать устаревшие версии API и использовать версионирование

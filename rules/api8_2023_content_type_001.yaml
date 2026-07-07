@@ -1,0 +1,12 @@
+id: API8-2023-CONTENT-TYPE-001
+name: Improper Content Type Validation
+severity: medium
+owasp: API8:2023
+cwe: 436
+description: Проверка строгой валидации Content-Type
+conditions:
+- type: content_type
+  expected_type: application/json
+  test_type: application/xml
+  expected_status: 415
+recommendation: Строго проверять Content-Type и отклонять неподдерживаемые типы

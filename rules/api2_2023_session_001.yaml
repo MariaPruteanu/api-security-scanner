@@ -1,0 +1,10 @@
+id: API2-2023-SESSION-001
+name: Session Fixation
+severity: high
+owasp: API2:2023
+cwe: 384
+description: Проверка на изменение сессионного токена после логина
+conditions:
+- type: session_fixation
+  check_token_change: true
+recommendation: Генерировать новый сессионный токен после успешной аутентификации

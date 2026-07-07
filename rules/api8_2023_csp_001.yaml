@@ -1,0 +1,10 @@
+id: API8-2023-CSP-001
+name: Missing Content Security Policy
+severity: medium
+owasp: API8:2023
+cwe: 693
+description: Проверка наличия заголовка Content-Security-Policy
+conditions:
+- type: csp
+  check_header: Content-Security-Policy
+recommendation: Внедрить строгую политику Content-Security-Policy

@@ -1,0 +1,15 @@
+id: API3-2023-SENSITIVE-URL-001
+name: Sensitive Data in URL
+severity: medium
+owasp: API3:2023
+cwe: 598
+description: Проверка передачи чувствительных данных через GET-параметры
+conditions:
+- type: sensitive_url
+  check_params:
+  - password
+  - token
+  - secret
+  - api_key
+recommendation: Передавать чувствительные данные только в теле запроса (POST) или
+  заголовках

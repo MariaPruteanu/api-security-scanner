@@ -1,0 +1,10 @@
+id: API10-2023-CONSUME-001
+name: Unsafe Third-Party API Consumption
+severity: medium
+owasp: API10:2023
+cwe: 829
+description: Проверка доверия к данным от внешних API
+conditions:
+- type: unsafe_consumption
+  check_validation: true
+recommendation: Валидировать и очищать все данные, полученные от сторонних API

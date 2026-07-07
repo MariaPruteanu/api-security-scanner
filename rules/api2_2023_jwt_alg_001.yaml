@@ -1,0 +1,15 @@
+id: API2-2023-JWT-ALG-001
+name: Weak JWT Algorithm
+severity: high
+owasp: API2:2023
+cwe: 327
+description: Проверка использования уязвимых алгоритмов JWT
+conditions:
+- type: jwt_algorithm
+  test_algorithms:
+  - none
+  - HS256
+  expected_status:
+  - 401
+  - 403
+recommendation: Использовать только безопасные алгоритмы (RS256, ES256)

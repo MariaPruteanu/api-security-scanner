@@ -1,0 +1,11 @@
+id: API8-2023-RACE-001
+name: Race Condition
+severity: high
+owasp: API8:2023
+cwe: 362
+description: Проверка на уязвимость к гонкам (Race Condition)
+conditions:
+- type: race_condition
+  concurrent_requests: 10
+  check_balance: true
+recommendation: Использовать транзакции и блокировки для критических операций

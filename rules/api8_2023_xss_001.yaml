@@ -1,0 +1,13 @@
+id: API8-2023-XSS-001
+name: Reflected XSS in API Response
+severity: high
+owasp: API8:2023
+cwe: 79
+description: Проверка параметров на отражение XSS-пейлоадов
+conditions:
+- type: xss_reflected
+  payloads:
+  - <script>alert(1)</script>
+  - <img src=x onerror=alert(1)>
+  check_response: true
+recommendation: Экранировать все пользовательские данные в ответах API

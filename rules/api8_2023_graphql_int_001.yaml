@@ -1,0 +1,13 @@
+id: API8-2023-GRAPHQL-INT-001
+name: GraphQL Introspection Enabled
+severity: medium
+owasp: API8:2023
+cwe: 200
+description: Проверка включенной интроспекции GraphQL
+conditions:
+- type: graphql_introspection
+  query: '{ "__schema": { "types": { "name" } } }'
+  expected_status:
+  - 400
+  - 403
+recommendation: Отключить интроспекцию GraphQL в продуктивной среде

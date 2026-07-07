@@ -1,0 +1,13 @@
+id: API2-2023-API-KEY-001
+name: API Key in URL
+severity: high
+owasp: API2:2023
+cwe: 598
+description: Проверка передачи API-ключей в URL
+conditions:
+- type: api_key_url
+  check_params:
+  - api_key
+  - apikey
+  - token
+recommendation: Передавать API-ключи только в заголовках (например, X-API-Key)

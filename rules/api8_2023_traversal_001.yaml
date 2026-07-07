@@ -1,0 +1,16 @@
+id: API8-2023-TRAVERSAL-001
+name: Path Traversal
+severity: high
+owasp: API8:2023
+cwe: 22
+description: Проверка параметров на Directory Traversal
+conditions:
+- type: path_traversal
+  payloads:
+  - ../../../etc/passwd
+  - ..\..\windows\system32\config\sam
+  expected_status:
+  - 400
+  - 403
+  - 500
+recommendation: Валидировать пути, использовать базовую директорию (chroot)

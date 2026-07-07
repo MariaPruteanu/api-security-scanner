@@ -1,0 +1,12 @@
+id: API5-2023-NO-AUTH-001
+name: Missing Authentication
+severity: critical
+owasp: API5:2023
+cwe: 306
+description: Проверка доступа к защищенным эндпоинтам без токена
+conditions:
+- type: missing_auth
+  expected_status:
+  - 401
+  - 403
+recommendation: Требовать аутентификацию для всех защищенных эндпоинтов

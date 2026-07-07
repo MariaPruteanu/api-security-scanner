@@ -1,0 +1,16 @@
+id: API1-2023-BOLA-002
+name: BOLA in Query Params
+severity: critical
+owasp: API1:2023
+cwe: 639
+description: Проверка на BOLA через подмену ID в query-параметрах
+conditions:
+- type: bola
+  param_name: id
+  test_values:
+  - '1'
+  - '999999'
+  expected_status:
+  - 403
+  - 404
+recommendation: Проверять права доступа к объекту для текущего пользователя

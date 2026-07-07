@@ -1,0 +1,10 @@
+id: API3-2023-BASE64-001
+name: Sensitive Data in Base64
+severity: high
+owasp: API3:2023
+cwe: 319
+description: Проверка на передачу чувствительных данных в Base64
+conditions:
+- type: base64_data
+  check_decoding: true
+recommendation: Шифровать чувствительные данные, Base64 не является шифрованием

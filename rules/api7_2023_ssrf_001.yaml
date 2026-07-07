@@ -1,0 +1,17 @@
+id: API7-2023-SSRF-001
+name: Server-Side Request Forgery (SSRF)
+severity: critical
+owasp: API7:2023
+cwe: 918
+description: Проверка параметров URL на SSRF
+conditions:
+- type: ssrf
+  payloads:
+  - http://127.0.0.1:80
+  - http://localhost:22
+  - http://169.254.169.254/latest/meta-data/
+  expected_status:
+  - 400
+  - 403
+  - 500
+recommendation: Валидировать и очищать все URL, использовать whitelist доменов

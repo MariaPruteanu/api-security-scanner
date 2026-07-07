@@ -1,0 +1,12 @@
+id: API8-2023-REDIRECT-002
+name: Unvalidated Redirects and Forwards
+severity: medium
+owasp: API8:2023
+cwe: 601
+description: Проверка на невалидированные редиректы
+conditions:
+- type: unvalidated_redirect
+  payloads:
+  - https://malicious.com
+  check_header: Location
+recommendation: Валидировать все URL для редиректов

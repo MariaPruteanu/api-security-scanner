@@ -1,0 +1,10 @@
+id: API8-2023-STATE-001
+name: Improper State Management
+severity: medium
+owasp: API8:2023
+cwe: 538
+description: Проверка корректности управления состоянием API
+conditions:
+- type: state_management
+  check_sequence: true
+recommendation: Реализовать корректное управление состоянием сессий и транзакций

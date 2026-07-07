@@ -1,0 +1,16 @@
+id: API8-2023-SQLI-001
+name: SQL Injection in Parameters
+severity: critical
+owasp: API8:2023
+cwe: 89
+description: Проверка параметров на уязвимость к SQL-инъекциям
+conditions:
+- type: sql_injection
+  payloads:
+  - ''' OR ''1''=''1'
+  - '''; DROP TABLE users--'
+  - 1 UNION SELECT NULL--
+  expected_status:
+  - 500
+  - 400
+recommendation: Использовать параметризованные запросы и ORM

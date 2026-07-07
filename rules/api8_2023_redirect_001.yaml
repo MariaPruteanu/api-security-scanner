@@ -1,0 +1,13 @@
+id: API8-2023-REDIRECT-001
+name: Open Redirect
+severity: medium
+owasp: API8:2023
+cwe: 601
+description: Проверка параметров на возможность открытого редиректа
+conditions:
+- type: open_redirect
+  payloads:
+  - https://evil.com
+  - //evil.com
+  check_header: Location
+recommendation: Валидировать URL для редиректа, использовать whitelist доменов

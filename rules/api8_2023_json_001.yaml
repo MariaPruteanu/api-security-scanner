@@ -1,0 +1,14 @@
+id: API8-2023-JSON-001
+name: JSON Injection
+severity: medium
+owasp: API8:2023
+cwe: 830
+description: Проверка на уязвимость к JSON-инъекциям
+conditions:
+- type: json_injection
+  payloads:
+  - '{"user": "admin", "role": "admin"}'
+  expected_status:
+  - 400
+  - 500
+recommendation: Строго валидировать структуру JSON-запросов

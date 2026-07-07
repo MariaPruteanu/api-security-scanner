@@ -1,0 +1,11 @@
+id: API4-2023-PAYLOAD-001
+name: Large Payload Size (DoS)
+severity: medium
+owasp: API4:2023
+cwe: 400
+description: Проверка ограничения размера тела запроса
+conditions:
+- type: large_payload
+  size_mb: 50
+  expected_status: 413
+recommendation: Ограничить максимальный размер тела запроса на уровне веб-сервера

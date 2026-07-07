@@ -1,0 +1,15 @@
+id: API8-2023-VERBOSE-001
+name: Verbose Error Messages
+severity: low
+owasp: API8:2023
+cwe: 209
+description: Проверка на раскрытие stack trace в ошибках
+conditions:
+- type: verbose_errors
+  trigger_payload: invalid_json{{{
+  check_patterns:
+  - Traceback
+  - Exception
+  - Stack trace
+  - SQLSTATE
+recommendation: Возвращать общие сообщения об ошибках, логировать детали на сервере

@@ -1,0 +1,14 @@
+id: API3-2023-EXCESSIVE-002
+name: Excessive Data in List Endpoints
+severity: medium
+owasp: API3:2023
+cwe: 200
+description: Проверка на раскрытие лишних данных в списках объектов
+conditions:
+- type: excessive_data_list
+  sensitive_fields:
+  - password
+  - salt
+  - secret
+  - internal_id
+recommendation: Возвращать только необходимые поля, использовать пагинацию

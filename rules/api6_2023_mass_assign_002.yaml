@@ -1,0 +1,17 @@
+id: API6-2023-MASS-ASSIGN-002
+name: Mass Assignment in PUT/PATCH
+severity: high
+owasp: API6:2023
+cwe: 915
+description: Проверка возможности изменения скрытых полей через PUT/PATCH
+conditions:
+- type: mass_assignment
+  fields:
+  - isAdmin
+  - role
+  - balance
+  - permissions
+  expected_status:
+  - 200
+  - 400
+recommendation: Использовать DTO и явно указывать разрешенные поля для обновления
