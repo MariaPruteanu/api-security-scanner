@@ -90,8 +90,8 @@ jobs:
       run: |
         docker build -t api-security-scanner:latest .
         docker build -f Dockerfile.vulnerable -t vulnerable-api:latest .
-        
-        - name: Verify Docker images
+    
+    - name: Verify Docker images  # ← Без лишних пробелов!
       run: |
         docker images
         echo "Docker images built successfully"
