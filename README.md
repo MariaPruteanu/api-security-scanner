@@ -53,3 +53,4 @@ pip install -r requirements.txt
 
 # 4. Запускаем сканер
 python3 run.py
+# Trigger CI
