@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # API Security Scanner
+  scanner:
+    build: .
+    container_name: api-scanner
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - vulnerable-api
+    networks:
+      - scanner-network
+
+  # Vulnerable API для тестирования
+  vulnerable-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.vulnerable
+    container_name: vulnerable-api
+    ports:
+      - "8080:8080"
+    networks:
+      - scanner-network
+
+networks:
+  scanner-network:
+    driver: bridge
