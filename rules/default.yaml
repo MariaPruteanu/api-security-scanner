@@ -1,0 +1,28 @@
+
+- name: "Missing Security Headers"
+  severity: "medium"
+  description: "В ответах отсутствуют заголовки безопасности (X-Content-Type-Options, Content-Security-Policy)"
+  recommendation: "Добавить заголовки: X-Content-Type-Options: nosniff, Content-Security-Policy: default-src 'self'"
+  condition:
+    method: "get"
+
+- name: "Sensitive Data in Response"
+  severity: "high"
+  description: "Ответ содержит чувствительные данные (пароль, токен, email в открытом виде)"
+  recommendation: "Исключить чувствительные поля из ответа или шифровать"
+  condition:
+    method: "get"
+
+- name: "Unsafe HTTP Methods Enabled"
+  severity: "medium"
+  description: "Разрешены небезопасные методы (OPTIONS, TRACE)"
+  recommendation: "Отключить методы OPTIONS и TRACE на сервере"
+  condition:
+    method: "options"
+
+- name: "Weak JWT Algorithm"
+  severity: "high"
+  description: "Используется слабый алгоритм JWT (HS256) вместо асимметричного (RS256/ES256)"
+  recommendation: "Перейти на RS256 или ES256"
+  condition:
+    has_security: true

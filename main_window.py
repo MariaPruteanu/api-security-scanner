@@ -26,6 +26,7 @@ from desktop_app.database import init_db, save_scan, get_history, get_scan, dele
 from desktop_app.export import export_json, export_html, export_pdf
 from i18n import tr, set_language
 from key_integration import apply_keys_from_files
+from update_checker import check_updates_async
 
 # =============================================================================
 # Стили (тёмная тема) – без CSS, только Qt-стили
@@ -1027,6 +1028,7 @@ class MainWindow(QMainWindow):
         if dlg.exec_() == QDialog.Accepted:
             self.settings = load_settings()
         apply_keys_from_files(self)
+        check_updates_async(self)
         self.apply_theme()
         self.api_key = self.settings.get('api_key', '')
         self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
