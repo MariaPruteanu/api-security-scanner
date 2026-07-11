@@ -5,7 +5,7 @@ from typing import List, Dict
 class RulesLoader:
     """Загрузчик правил уязвимостей из YAML-файлов"""
     
-    def __init__(self, rules_dir: str = "rules"):
+    def __init__(self, rules_dir: str = os.path.join(os.path.dirname(__file__), "rules")):
         self.rules_dir = rules_dir
         self.rules: List[Dict] = []
         self.load_rules()

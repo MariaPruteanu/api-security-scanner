@@ -1,0 +1,4 @@
+PyQt5==5.15.9
+pyyaml==6.0
+jsonschema==4.17
+requests==2.28

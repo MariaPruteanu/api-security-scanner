@@ -1,0 +1,7 @@
+# 1. Создали виджет
+self.api_key_input = QLineEdit()
+self.api_key_input.setPlaceholderText("API Key")
+self.api_key_input.setEchoMode(QLineEdit.Password)
+
+# 2. Добавили в layout
+top_layout.addWidget(self.api_key_input)   # ← ЭТО ОБЯЗАТЕЛЬНО
