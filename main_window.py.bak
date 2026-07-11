@@ -73,8 +73,6 @@ LIGHT_STYLE = ""
 # ----------------------------------------------------------------------
 # SeverityBadge
 # ----------------------------------------------------------------------
-
-
 class SeverityBadge(QLabel):
     def __init__(self, severity, parent=None):
         super().__init__(parent)
@@ -99,8 +97,6 @@ class SeverityBadge(QLabel):
 # ----------------------------------------------------------------------
 # LicenseManager
 # ----------------------------------------------------------------------
-
-
 class LicenseManager:
     VALID_PREMIUM_KEY = "PREMIUM-123"
     VALID_ENTERPRISE_KEY = "ENTERPRISE-456"
@@ -126,8 +122,6 @@ class LicenseManager:
 # ----------------------------------------------------------------------
 # CloudScanner
 # ----------------------------------------------------------------------
-
-
 class CloudScanner:
     def __init__(self, api_key, base_url="http://127.0.0.1:8000"):
         self.api_key = api_key
@@ -174,8 +168,6 @@ class CloudScanner:
 # ----------------------------------------------------------------------
 # ScannerThread
 # ----------------------------------------------------------------------
-
-
 class ScannerThread(QThread):
     finished = pyqtSignal(str)
     progress = pyqtSignal(int)
@@ -250,28 +242,19 @@ class ScannerThread(QThread):
                 formatted = []
                 for item in raw_results:
                     if isinstance(item, dict):
-                        desc = (
-                            item.get('description') or item.get('message') or f"{
-                                item.get(
-                                    'vulnerability',
-                                    '')} {
-                                item.get(
-                    'evidence',
-                    '')} {
-                        item.get(
-                            'recommendation',
-                            '')}".strip())
+                        desc = (item.get('description') or item.get('message') or
+                                f"{item.get('vulnerability', '')} {item.get('evidence', '')} {item.get('recommendation', '')}".strip())
                         if not desc:
                             desc = str(item)
                         formatted.append({
-                            'id': item.get('id', str(len(formatted) + 1)),
+                            'id': item.get('id', str(len(formatted)+1)),
                             'severity': item.get('severity', ''),
                             'description': desc
                         })
                     else:
                         desc = getattr(item, 'description', '') or getattr(item, 'message', '') or str(item)
                         formatted.append({
-                            'id': getattr(item, 'id', str(len(formatted) + 1)),
+                            'id': getattr(item, 'id', str(len(formatted)+1)),
                             'severity': getattr(item, 'severity', ''),
                             'description': desc
                         })
@@ -303,8 +286,6 @@ class ScannerThread(QThread):
 # ----------------------------------------------------------------------
 # HistoryDialog
 # ----------------------------------------------------------------------
-
-
 class HistoryDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -399,12 +380,11 @@ class HistoryDialog(QDialog):
 # ----------------------------------------------------------------------
 # SettingsDialog
 # ----------------------------------------------------------------------
-
-
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.settings = load_settings()
+        apply_keys_from_files(self)
         self.setWindowTitle("⚙️ Настройки")
         self.setMinimumWidth(450)
         self.setStyleSheet("""
@@ -454,7 +434,7 @@ class SettingsDialog(QDialog):
         # Язык
         self.lang_combo = QComboBox()
         from i18n import TRANSLATIONS
-
+from key_integration import apply_keys_from_files
         self.lang_combo.addItems(list(TRANSLATIONS.keys()))
         self.lang_combo.setCurrentText(self.settings.get("language", "ru"))
         layout.addRow("🌍 Язык / Language:", self.lang_combo)
@@ -504,7 +484,7 @@ class SettingsDialog(QDialog):
         save_settings(self.settings)
 
         from i18n import set_language
-
+from key_integration import apply_keys_from_files
         set_language(self.settings['language'])
         parent = self.parent()
         if parent and hasattr(parent, 'retranslate_ui'):
@@ -514,12 +494,11 @@ class SettingsDialog(QDialog):
 # =============================================================================
 # Главное окно (улучшенный интерфейс)
 # =============================================================================
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = load_settings()
+        apply_keys_from_files(self)
         self.setWindowTitle("API Security Scanner Pro")
 
         icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app_icon.icns")
@@ -731,7 +710,7 @@ class MainWindow(QMainWindow):
         try:
             with socket.create_connection(("127.0.0.1", 8000), timeout=1):
                 return True
-        except BaseException:
+        except:
             return False
 
     def _open_terminal_with_command(self):
@@ -753,7 +732,7 @@ class MainWindow(QMainWindow):
 
     def toggle_language(self):
         from i18n import set_language
-
+from key_integration import apply_keys_from_files
         current = self.settings.get("language", "ru")
         new_lang = "en" if current == "ru" else "ru"
         self.settings["language"] = new_lang
@@ -1027,17 +1006,15 @@ class MainWindow(QMainWindow):
         if dlg.exec_() == QDialog.Accepted:
             self.settings = load_settings()
         apply_keys_from_files(self)
-        self.apply_theme()
-        self.api_key = self.settings.get('api_key', '')
-        self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
-        self.timeout = self.settings.get('timeout', 30)
-        if self.api_key:
-            self.api_key_input.setText(self.api_key)
-            if self.settings.get('premium_key') and LicenseManager.validate_key(
-                    self.settings['premium_key'], 'premium'):
+            self.apply_theme()
+            self.api_key = self.settings.get('api_key', '')
+            self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
+            self.timeout = self.settings.get('timeout', 30)
+            if self.api_key:
+                self.api_key_input.setText(self.api_key)
+            if self.settings.get('premium_key') and LicenseManager.validate_key(self.settings['premium_key'], 'premium'):
                 self.license_valid['premium'] = True
-            if self.settings.get('enterprise_key') and LicenseManager.validate_key(
-                    self.settings['enterprise_key'], 'enterprise'):
+            if self.settings.get('enterprise_key') and LicenseManager.validate_key(self.settings['enterprise_key'], 'enterprise'):
                 self.license_valid['enterprise'] = True
             last = self.settings.get('last_target', '')
             if last:
@@ -1061,8 +1038,7 @@ class MainWindow(QMainWindow):
     def generate_report(self):
         """Генерирует PDF-отчёт для последнего сканирования"""
         try:
-            import subprocess
-            import sqlite3
+            import subprocess, sqlite3
             from PyQt5.QtWidgets import QMessageBox
             conn = sqlite3.connect("scanner.db")
             c = conn.cursor()
@@ -1116,15 +1092,12 @@ class MainWindow(QMainWindow):
 # ----------------------------------------------------------------------
 # Запуск
 # ----------------------------------------------------------------------
-
-
 def run():
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     run()

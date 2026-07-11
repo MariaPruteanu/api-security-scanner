@@ -1,56 +1,25 @@
-# 🔍 API Security Scanner
+# 🛡️ API Security Scanner Pro
 
-<div align="center">
+Профессиональный сканер уязвимостей для OpenAPI, Swagger 2.0 и Postman коллекций.  
+Поддерживает локальные файлы, облачный режим и интеграцию с CI/CD.
 
-[![CI/CD Pipeline](https://github.com/MariaPruteanu/api-security-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/MariaPruteanu/api-security-scanner/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/MariaPruteanu/api-security-scanner/branch/main/graph/badge.svg)](https://codecov.io/gh/MariaPruteanu/api-security-scanner)
+## 🔥 Возможности
 
-**Инструмент автоматизированного анализа защищённости API на основе OWASP API Security Top 10 (2023)**
+- Сканирование OpenAPI 3.1, Swagger 2.0, Postman Collections.
+- Автоматическое определение формата.
+- 49+ правил на основе OWASP API Security Top 10.
+- Генерация красивых PDF/HTML отчётов с графиками.
+- CLI и Docker для интеграции в CI/CD.
+- Десктопное приложение (macOS, Windows, Linux).
 
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)](https://fastapi.tiangolo.com/)
-[![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![OWASP](https://img.shields.io/badge/OWASP-API%20Top%2010-red.svg)](https://owasp.org/www-project-api-security/)
+## 🚀 Установка и запуск
 
-[Быстрый старт](#-быстрый-старт) • [Возможности](#-возможности) • [Docker](#-запуск-в-docker) • [Документация](#-документация)
+### Десктопное приложение
+Скачайте готовый файл для вашей ОС из [релизов](https://github.com/ваш-репозиторий/releases) и запустите.
 
-</div>
-
----
-
-## 📋 О проекте
-
-**API Security Scanner** — это инструмент для автоматического поиска уязвимостей в REST API. Сканер сочетает **статический анализ OpenAPI/Swagger** спецификаций с **динамическим тестированием** (DAST) на основе 45+ YAML-правил.
-
-### 🎯 Ключевые особенности
-
-- ✅ **45+ YAML-правил** — гибкая система проверок без изменения кода
-- ✅ **Покрытие OWASP API Top 10 (2023)** — все 10 категорий
-- ✅ **Асинхронное сканирование** — httpx + asyncio
-- ✅ **JWT/Bearer Token** — поддержка аутентификации
-- ✅ **Swagger UI** — удобный веб-интерфейс
-- ✅ **HTML/JSON/CSV отчёты** — через Jinja2
-- ✅ **Docker-контейнеризация** — запуск в один клик
-
----
-
-## 🚀 Быстрый старт
-
-### Локальный запуск
-
+### Из исходников
 ```bash
-# 1. Клонируем репозиторий
-git clone https://github.com/MariaPruteanu/api-security-scanner.git
+git clone https://github.com/ваш-репозиторий
 cd api-security-scanner
-
-# 2. Создаём виртуальное окружение
-python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-
-# 3. Устанавливаем зависимости
 pip install -r requirements.txt
-
-# 4. Запускаем сканер
-python3 run.py
-# Trigger CI
+python main_window.py

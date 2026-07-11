@@ -26,11 +26,11 @@ from desktop_app.database import init_db, save_scan, get_history, get_scan, dele
 from desktop_app.export import export_json, export_html, export_pdf
 
 # =============================================================================
-# Стили (тёмная тема) – сокращённо, они уже были
+# Стили (тёмная тема)
 # =============================================================================
 DARK_STYLE = """
 QMainWindow { background-color: #1a1a2e; }
-QWidget { background-color: #16213e; color: #e0e0e0; font-family: 'Segoe UI', Arial, sans-serif; }
+QWidget { background-color: #16213e; color: #e0e0e0; }
 QLabel { color: #e0e0e0; font-weight: bold; }
 QLineEdit { background-color: #2a2a4a; border: 1px solid #4a4a6a; border-radius: 8px; padding: 8px 12px; color: #e0e0e0; }
 QLineEdit:focus { border: 2px solid #7a7aff; }
@@ -226,8 +226,7 @@ class ScannerThread(QThread):
                 try:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
-                    scanner = APIScanner(base_url=self.target, timeout=self.timeout)
-                    self.log("⏳ Выполняется сканирование...")
+                    scanner = APIScanner(base_url=self.target, timeout=self.timeout, scan_type=self.scan_type)                    self.log("⏳ Выполняется сканирование...")
                     raw_results = loop.run_until_complete(scanner.run_scan())
                     self.log(f"✅ Сканирование завершено. Сырых результатов: {len(raw_results)}")
                 except Exception as e:
@@ -282,7 +281,7 @@ class ScannerThread(QThread):
                 self.error.emit(str(e))
 
 # ----------------------------------------------------------------------
-# HistoryDialog (без изменений)
+# HistoryDialog
 # ----------------------------------------------------------------------
 class HistoryDialog(QDialog):
     def __init__(self, parent=None):
@@ -376,34 +375,12 @@ class HistoryDialog(QDialog):
             dlg.exec_()
 
 # ----------------------------------------------------------------------
-# SettingsDialog (без изменений)
+# SettingsDialog
 # ----------------------------------------------------------------------
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.settings = load_settings()
-        # Загрузка ключей из license.txt
-        license_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "license.txt")
-        if not os.path.exists(license_path) and getattr(sys, "frozen", False):
-            license_path = os.path.join(os.path.dirname(sys.executable), "license.txt")
-        if os.path.exists(license_path):
-            try:
-                with open(license_path, "r", encoding="utf-8") as f:
-                    for line in f:
-                        if "=" in line:
-                            key, value = line.strip().split("=", 1)
-                            if key == "API_KEY":
-                                self.api_key = value
-                                self.settings["api_key"] = value
-                            elif key == "PREMIUM_KEY":
-                                self.license_valid["premium"] = True
-                                self.settings["premium_key"] = value
-                            elif key == "ENTERPRISE_KEY":
-                                self.license_valid["enterprise"] = True
-                                self.settings["enterprise_key"] = value
-                save_settings(self.settings)
-            except Exception as e:
-                print(f"Не удалось прочитать license.txt: {e}")
         self.setWindowTitle("⚙️ Настройки")
         self.setMinimumWidth(450)
         self.setStyleSheet("""
@@ -443,10 +420,19 @@ class SettingsDialog(QDialog):
     def init_ui(self):
         layout = QFormLayout(self)
         layout.setSpacing(12)
+
+        # Тема
         self.theme_combo = QComboTheme()
         self.theme_combo.addItems(["🌙 Тёмная", "☀️ Светлая"])
         self.theme_combo.setCurrentIndex(0 if self.settings.get('theme') == 'dark' else 1)
         layout.addRow("Тема:", self.theme_combo)
+
+        # Язык
+        self.lang_combo = QComboBox()
+        from i18n import TRANSLATIONS
+        self.lang_combo.addItems(list(TRANSLATIONS.keys()))
+        self.lang_combo.setCurrentText(self.settings.get("language", "ru"))
+        layout.addRow("🌍 Язык / Language:", self.lang_combo)
 
         self.timeout_spin = QSpinBox()
         self.timeout_spin.setRange(5, 300)
@@ -489,41 +475,25 @@ class SettingsDialog(QDialog):
         self.settings['premium_key'] = self.premium_key_edit.text()
         self.settings['enterprise_key'] = self.enterprise_key_edit.text()
         self.settings['api_url'] = self.api_url_edit.text()
+        self.settings['language'] = self.lang_combo.currentText()
         save_settings(self.settings)
+        from i18n import set_language, tr
+        set_language(self.settings['language'])
+        # Обновим главное окно, если есть ссылка
+        parent = self.parent()
+        if parent and hasattr(parent, 'retranslate_ui'):
+            parent.retranslate_ui()
         self.accept()
 
 # =============================================================================
-# Главное окно (с окончательным решением)
+# Главное окно
 # =============================================================================
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = load_settings()
-        # Загрузка ключей из license.txt
-        license_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "license.txt")
-        if not os.path.exists(license_path) and getattr(sys, "frozen", False):
-            license_path = os.path.join(os.path.dirname(sys.executable), "license.txt")
-        if os.path.exists(license_path):
-            try:
-                with open(license_path, "r", encoding="utf-8") as f:
-                    for line in f:
-                        if "=" in line:
-                            key, value = line.strip().split("=", 1)
-                            if key == "API_KEY":
-                                self.api_key = value
-                                self.settings["api_key"] = value
-                            elif key == "PREMIUM_KEY":
-                                self.license_valid["premium"] = True
-                                self.settings["premium_key"] = value
-                            elif key == "ENTERPRISE_KEY":
-                                self.license_valid["enterprise"] = True
-                                self.settings["enterprise_key"] = value
-                save_settings(self.settings)
-            except Exception as e:
-                print(f"Не удалось прочитать license.txt: {e}")
         self.setWindowTitle("API Security Scanner Pro")
 
-        # Иконка
         icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app_icon.icns")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
@@ -541,6 +511,9 @@ class MainWindow(QMainWindow):
         self.timeout = self.settings.get('timeout', 30)
 
         self.init_ui()
+        from i18n import set_language
+        set_language(self.settings.get("language", "ru"))
+        self.retranslate_ui()
         self.apply_theme()
         self.init_db()
 
@@ -559,33 +532,47 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(LIGHT_STYLE)
 
     def init_ui(self):
-        # Меню (без изменений)
         menubar = self.menuBar()
-        file_menu = menubar.addMenu("📁 Файл")
-        export_menu = file_menu.addMenu("📤 Экспорт отчёта")
+
+        # Файл
+        self.file_menu = menubar.addMenu("📁 Файл")
+        self.export_menu = self.file_menu.addMenu("📤 Экспорт отчёта")
         for fmt, label in [('json', 'JSON'), ('html', 'HTML'), ('pdf', 'PDF')]:
             action = QAction(label, self)
             action.triggered.connect(lambda checked, f=fmt: self.export_report(f))
-            export_menu.addAction(action)
-        file_menu.addSeparator()
+            self.export_menu.addAction(action)
+        self.file_menu.addSeparator()
+        report_action = QAction("📊 Сформировать отчёт", self)
+        report_action.triggered.connect(self.generate_report)
+        self.file_menu.addAction(report_action)
+        self.file_menu.addSeparator()
         exit_action = QAction("✕ Выход", self)
         exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
+        self.file_menu.addAction(exit_action)
 
+        # История
         history_menu = menubar.addMenu("📜 История")
         show_history = QAction("📋 Показать историю", self)
         show_history.triggered.connect(self.show_history)
         history_menu.addAction(show_history)
 
+        # Настройки
         settings_menu = menubar.addMenu("⚙️ Настройки")
         settings_action = QAction("🛠 Дополнительные опции", self)
         settings_action.triggered.connect(self.open_settings)
         settings_menu.addAction(settings_action)
 
+        # Помощь
         help_menu = menubar.addMenu("❓ Помощь")
         about_action = QAction("ℹ️ О программе", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
+        help_action = QAction("📖 Справка по ошибкам", self)
+        help_action.triggered.connect(self.open_help)
+        help_menu.addAction(help_action)
+        rules_action = QAction("📚 База знаний правил", self)
+        rules_action.triggered.connect(self.open_rules_knowledge)
+        help_menu.addAction(rules_action)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -611,10 +598,10 @@ class MainWindow(QMainWindow):
         top_layout = QHBoxLayout()
         top_layout.setSpacing(8)
 
+        self.target_label = QLabel("🎯 Target:")
         self.target_input = QLineEdit()
         self.target_input.setPlaceholderText("Введите URL OpenAPI или выберите файл...")
         self.target_input.setMinimumWidth(300)
-
         self.browse_btn = QPushButton("📂 Browse")
         self.browse_btn.clicked.connect(self.browse_file)
 
@@ -628,12 +615,9 @@ class MainWindow(QMainWindow):
         self.scan_type_combo.setCurrentIndex(0)
 
         self.api_key_input = QLineEdit()
-        self.api_key_input.setPlaceholderText("API Ключ")
+        self.api_key_input.setPlaceholderText("🔑 API Key")
         self.api_key_input.setEchoMode(QLineEdit.Password)
         self.api_key_input.setMinimumWidth(150)
-        self.api_key_input.setVisible(True)
-        self.api_key_input.setToolTip("Введите ваш API-ключ для облачного режима")
-        self.api_key_input.setEnabled(True)
         if self.api_key:
             self.api_key_input.setText(self.api_key)
 
@@ -646,7 +630,7 @@ class MainWindow(QMainWindow):
         self.stop_btn.setEnabled(False)
         self.stop_btn.clicked.connect(self.stop_scan)
 
-        top_layout.addWidget(QLabel("🎯 Target:"))
+        top_layout.addWidget(self.target_label)
         top_layout.addWidget(self.target_input, 1)
         top_layout.addWidget(self.browse_btn)
         top_layout.addWidget(QLabel("Mode:"))
@@ -656,6 +640,10 @@ class MainWindow(QMainWindow):
         top_layout.addWidget(self.api_key_input)
         top_layout.addWidget(self.scan_btn)
         top_layout.addWidget(self.stop_btn)
+        self.lang_btn = QPushButton("RU" if self.settings.get('language', 'ru') == 'ru' else "EN")
+        self.lang_btn.setFixedWidth(40)
+        self.lang_btn.clicked.connect(self.toggle_language)
+        top_layout.addWidget(self.lang_btn)
         main_layout.addLayout(top_layout)
 
         self.progress_bar = QProgressBar()
@@ -699,9 +687,6 @@ class MainWindow(QMainWindow):
         if file_path:
             self.target_input.setText(file_path)
 
-    # --------------------------------------------------------------
-    # Бэкенд – проверка и открытие терминала
-    # --------------------------------------------------------------
     def _is_backend_running(self):
         try:
             with socket.create_connection(("127.0.0.1", 8000), timeout=1):
@@ -710,7 +695,6 @@ class MainWindow(QMainWindow):
             return False
 
     def _open_terminal_with_command(self):
-        """Открывает окно терминала с командой для запуска бэкенда."""
         if hasattr(sys, '_MEIPASS'):
             base_dir = sys._MEIPASS
         else:
@@ -727,9 +711,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", f"Не удалось открыть терминал: {e}")
 
-    # --------------------------------------------------------------
-    # Запуск сканирования (с проверкой бэкенда)
-    # --------------------------------------------------------------
     def start_scan(self):
         print("🚀 start_scan вызван!")
         try:
@@ -770,7 +751,6 @@ class MainWindow(QMainWindow):
                     self._open_terminal_with_command()
                     return
 
-            # Если бэкенд уже запущен или режим Local – продолжаем
             if mode == 'local':
                 if scan_type in ('premium', 'enterprise') and not self.license_valid.get(scan_type, False):
                     key = LicenseManager.request_key(self, scan_type)
@@ -845,30 +825,7 @@ class MainWindow(QMainWindow):
         else:
             self.progress_bar.setFormat("✅ Завершение...")
 
-    
-    
-    
     def on_scan_finished(self, results_json):
-
-sed -i '' '/def generate_report/,/^    def /c\
-    def generate_report(self):\
-        """Генерирует PDF-отчёт для последнего сканирования"""\
-        try:\
-            import subprocess, sqlite3\
-            conn = sqlite3.connect("scanner.db")\
-            c = conn.cursor()\
-            c.execute("SELECT id FROM scan_tasks ORDER BY id DESC LIMIT 1")\
-            row = c.fetchone()\
-            conn.close()\
-            if row:\
-                scan_id = row[0]\
-                subprocess.Popen(["python", "run_report.py", str(scan_id)])\
-                QMessageBox.information(self, "Успех", f"Отчёт для сканирования #{scan_id} создаётся в фоне")\
-            else:\
-                QMessageBox.information(self, "Информация", "Нет завершённых сканирований")\
-        except Exception as e:\
-            QMessageBox.critical(self, "Ошибка", f"Не удалось создать отчёт: {e}")\
-' main_window.py
         try:
             print("📥 on_scan_finished, длина JSON:", len(results_json))
             data = json.loads(results_json)
@@ -909,11 +866,6 @@ sed -i '' '/def generate_report/,/^    def /c\
             print("📊 Получено результатов:", len(safe_results))
 
         except Exception as e:
-sed -i '' '/self.scan_btn = QPushButton/a\
-        self.report_btn = QPushButton("📊 Отчёт")\
-        self.report_btn.clicked.connect(self.generate_report)\
-        top_layout.addWidget(self.report_btn)\
-' main_window.py
             self.scan_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
             self.progress_bar.setValue(0)
@@ -949,9 +901,7 @@ sed -i '' '/self.scan_btn = QPushButton/a\
             user_friendly = "Ошибка на сервере. Попробуйте позже."
         QMessageBox.critical(self, "Ошибка сканирования", user_friendly)
 
-        
     def display_results(self, results):
-        # Принудительно преобразуем любые данные в словари
         safe_results = []
         for idx, item in enumerate(results):
             if isinstance(item, dict):
@@ -1015,28 +965,6 @@ sed -i '' '/self.scan_btn = QPushButton/a\
         dlg = SettingsDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.settings = load_settings()
-        # Загрузка ключей из license.txt
-        license_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "license.txt")
-        if not os.path.exists(license_path) and getattr(sys, "frozen", False):
-            license_path = os.path.join(os.path.dirname(sys.executable), "license.txt")
-        if os.path.exists(license_path):
-            try:
-                with open(license_path, "r", encoding="utf-8") as f:
-                    for line in f:
-                        if "=" in line:
-                            key, value = line.strip().split("=", 1)
-                            if key == "API_KEY":
-                                self.api_key = value
-                                self.settings["api_key"] = value
-                            elif key == "PREMIUM_KEY":
-                                self.license_valid["premium"] = True
-                                self.settings["premium_key"] = value
-                            elif key == "ENTERPRISE_KEY":
-                                self.license_valid["enterprise"] = True
-                                self.settings["enterprise_key"] = value
-                save_settings(self.settings)
-            except Exception as e:
-                print(f"Не удалось прочитать license.txt: {e}")
             self.apply_theme()
             self.api_key = self.settings.get('api_key', '')
             self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
@@ -1050,6 +978,9 @@ sed -i '' '/self.scan_btn = QPushButton/a\
             last = self.settings.get('last_target', '')
             if last:
                 self.target_input.setText(last)
+            from i18n import set_language
+            set_language(self.settings.get("language", "ru"))
+            self.retranslate_ui()
 
     def show_about(self):
         QMessageBox.about(self, "О программе",
@@ -1063,6 +994,65 @@ sed -i '' '/self.scan_btn = QPushButton/a\
                           "• Premium (Платный) – все проверки\n"
                           "• Enterprise (Pro) – все проверки + расширенные возможности\n\n"
                           "☁️ Облачный режим требует запуска бэкенда. При необходимости откроется терминал с командой.")
+
+    def generate_report(self):
+        """Генерирует PDF-отчёт для последнего сканирования"""
+        try:
+            import subprocess, sqlite3
+            from PyQt5.QtWidgets import QMessageBox
+            conn = sqlite3.connect("scanner.db")
+            c = conn.cursor()
+            c.execute("SELECT id FROM scan_tasks ORDER BY id DESC LIMIT 1")
+            row = c.fetchone()
+            conn.close()
+            if row:
+                scan_id = row[0]
+                subprocess.Popen(["python", "run_report.py", str(scan_id)])
+                QMessageBox.information(self, "Успех", f"Отчёт для сканирования #{scan_id} создаётся в фоне")
+            else:
+                QMessageBox.information(self, "Информация", "Нет завершённых сканирований")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось создать отчёт: {e}")
+
+    def open_help(self):
+        from help_window import HelpWindow
+        dlg = HelpWindow(self)
+        dlg.exec_()
+
+    def open_rules_knowledge(self):
+    def toggle_language(self):
+        from i18n import set_language
+        current = self.settings.get('language', 'ru')
+        new_lang = 'en' if current == 'ru' else 'ru'
+        self.settings['language'] = new_lang
+        save_settings(self.settings)
+        set_language(new_lang)
+        self.retranslate_ui()
+        self.lang_btn.setText("EN" if new_lang == 'ru' else "RU")
+        from rules_knowledge import RulesKnowledgeWindow
+        dlg = RulesKnowledgeWindow(self)
+        dlg.exec_()
+
+    def retranslate_ui(self):
+        from i18n import tr
+        self.setWindowTitle(tr('app_title'))
+        self.scan_btn.setText(tr('start_scan_btn'))
+        self.stop_btn.setText(tr('stop_scan_btn'))
+        self.target_label.setText(tr('target_label'))
+        self.browse_btn.setText(tr('browse_btn'))
+        self.mode_combo.setItemText(0, tr('mode_local'))
+        self.mode_combo.setItemText(1, tr('mode_cloud'))
+        self.scan_type_combo.setItemText(0, tr('type_basic'))
+        self.scan_type_combo.setItemText(1, tr('type_premium'))
+        self.scan_type_combo.setItemText(2, tr('type_enterprise'))
+        self.api_key_input.setPlaceholderText(tr('api_key_placeholder'))
+        self.status_label.setText(tr('status_ready'))
+        self.progress_bar.setFormat(tr('progress_ready'))
+        self.results_table.setHorizontalHeaderLabels([tr('table_id'), tr('table_severity'), tr('table_description')])
+        if hasattr(self, 'file_menu'):
+            self.file_menu.setTitle(tr('menu_file'))
+        if hasattr(self, 'export_menu'):
+            self.export_menu.setTitle(tr('menu_export'))
 
     def closeEvent(self, event):
         self.settings['last_target'] = self.target_input.text().strip()

@@ -1,0 +1,51 @@
+name: API Security Scan
+
+on:
+  push:
+    paths:
+      - '*.json'
+      - '*.yaml'
+      - '*.yml'
+  pull_request:
+    paths:
+      - '*.json'
+      - '*.yaml'
+      - '*.yml'
+  workflow_dispatch:  # позволяет запускать вручную
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          # Установка системных шрифтов для PDF
+          sudo apt-get update && sudo apt-get install -y fonts-dejavu
+
+      - name: Run API Security Scanner
+        run: |
+          # Ищем все файлы спецификаций и сканируем каждый
+          for file in $(find . -name "*.json" -o -name "*.yaml" -o -name "*.yml" | grep -v "node_modules" | grep -v "venv"); do
+            echo "Scanning $file"
+            python cli.py "$file" --type premium --output html --out-file "scan_report_$(basename $file).html"
+            python cli.py "$file" --type premium --output pdf --out-file "scan_report_$(basename $file).pdf"
+          done
+          # Если нет файлов, выводим предупреждение
+          if [ ! -f scan_report_*.html ]; then
+            echo "No specification files found to scan."
+          fi
+
+      - name: Upload scan reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-reports
+          path: scan_report_*.{html,pdf}

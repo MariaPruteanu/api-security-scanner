@@ -25,3 +25,5 @@ requests==2.28
 httpx==0.25.1
 reportlab==4.0.4          # для PDF
 jinja2==3.1.2             # для HTML
+httpx
+pyinstaller>=6.0.0

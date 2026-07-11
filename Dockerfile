@@ -1,24 +1,16 @@
-# Используем официальный образ Python 3.11
 FROM python:3.11-slim
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем зависимости
-COPY requirements.txt .
+# Установка только CLI-зависимостей (без PyQt5)
+COPY requirements-cli.txt .
+RUN pip install --no-cache-dir -r requirements-cli.txt
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Копируем исходный код
+# Копирование кода
 COPY . .
 
-# Создаём папку для отчётов
-RUN mkdir -p output/reports
+# Установка шрифта для PDF (опционально)
+RUN apt-get update && apt-get install -y fonts-dejavu && rm -rf /var/lib/apt/lists/*
 
-# Открываем порт для FastAPI
-EXPOSE 8000
-
-# Команда запуска
-CMD ["python", "run.py"]
-
+# Точка входа – CLI
+ENTRYPOINT ["python", "cli.py"]

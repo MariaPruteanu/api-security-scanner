@@ -7,7 +7,6 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-
 import sqlite3
 from charts import get_severity_data, generate_severity_pie_chart, generate_severity_bar_chart
 
@@ -20,7 +19,6 @@ class ReportGenerator:
         self._init_custom_styles()
 
     def _init_custom_styles(self):
-        # Уникальные имена, чтобы не конфликтовать со стандартными
         self.styles.add(ParagraphStyle(
             name='CustomTitle',
             parent=self.styles['Title'],
@@ -58,17 +56,12 @@ class ReportGenerator:
         if logo:
             self.story.append(logo)
             self.story.append(Spacer(1, 0.5*cm))
-        title = Paragraph("Отчёт по безопасности API", self.styles['CustomTitle'])
-        self.story.append(title)
+        self.story.append(Paragraph("Отчёт по безопасности API", self.styles['CustomTitle']))
         self.story.append(Spacer(1, 0.5*cm))
-        subtitle = Paragraph(f"Сканирование #{self.scan_id}", self.styles['CustomHeading1'])
-        self.story.append(subtitle)
+        self.story.append(Paragraph(f"Сканирование #{self.scan_id}", self.styles['CustomHeading1']))
         self.story.append(Spacer(1, 0.5*cm))
-        date_str = datetime.now().strftime("%d.%m.%Y %H:%M")
-        date_para = Paragraph(f"Дата формирования: {date_str}", self.styles['CustomBodyText'])
-        self.story.append(date_para)
+        self.story.append(Paragraph(f"Дата: {datetime.now().strftime('%d.%m.%Y %H:%M')}", self.styles['CustomBodyText']))
         self.story.append(Spacer(1, 1*cm))
-
         conn = sqlite3.connect("scanner.db")
         c = conn.cursor()
         c.execute("SELECT name FROM sqlite_master WHERE type='table' AND (name='scan_tasks' OR name='scans' OR name='scan_results')")
@@ -80,7 +73,7 @@ class ReportGenerator:
             row = c.fetchone()
             if row:
                 target, status = row
-                info_text = f"<b>Цель:</b> {target or 'не указано'}<br/><b>Статус:</b> {status or 'завершено'}<br/>"
+                info_text = f"Цель: {target or 'не указано'}\nСтатус: {status or 'завершено'}"
         conn.close()
         if info_text:
             self.story.append(Paragraph(info_text, self.styles['CustomBodyText']))
@@ -142,7 +135,7 @@ class ReportGenerator:
         data = [["ID", "Название", "Severity", "Описание"]]
         for row in rows:
             data.append([str(row[0]), row[1] or "—", row[2] or "unknown", (row[3] or "")[:50] + "..."])
-        table = Table(data, colWidths=[1*cm, 3*cm, 2*cm, 5*cm])
+        table = Table(data, colWidths=[1*cm, 3*cm, 2*cm, 9*cm])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#283593')),
             ('TEXTCOLOR', (0,0), (-1,0), colors.white),
@@ -152,19 +145,13 @@ class ReportGenerator:
             ('BOTTOMPADDING', (0,0), (-1,0), 12),
             ('BACKGROUND', (0,1), (-1,-1), colors.beige),
             ('GRID', (0,0), (-1,-1), 1, colors.grey),
+            ('WORD_WRAP', (0,0), (-1,-1), True),
         ]))
         self.story.append(table)
 
     def _add_recommendations(self):
         self.story.append(Paragraph("Рекомендации по исправлению", self.styles['CustomHeading1']))
-        rec_text = """
-        <b>Общие рекомендации:</b><br/>
-        • Регулярно обновляйте зависимости и библиотеки.<br/>
-        • Используйте аутентификацию и авторизацию для всех эндпоинтов.<br/>
-        • Применяйте валидацию входных данных.<br/>
-        • Настройте CORS политики.<br/>
-        • Внедрите мониторинг и логирование.<br/>
-        """
+        rec_text = "Общие рекомендации:\n• Регулярно обновляйте зависимости и библиотеки.\n• Используйте аутентификацию и авторизацию для всех эндпоинтов.\n• Применяйте валидацию входных данных.\n• Настройте CORS политики.\n• Внедрите мониторинг и логирование."
         self.story.append(Paragraph(rec_text, self.styles['CustomBodyText']))
 
     def generate(self):

@@ -1,0 +1,48 @@
+    def display_results(self, results):
+        """Отображает результаты с колонками: ID, Severity, Description, Endpoint, Recommendation"""
+        safe_results = []
+        for idx, item in enumerate(results):
+            if isinstance(item, dict):
+                safe_item = {
+                    'id': item.get('id', str(idx + 1)),
+                    'severity': item.get('severity', 'UNKNOWN'),
+                    'description': item.get('description', str(item)),
+                    'endpoint': item.get('endpoint', 'N/A'),
+                    'recommendation': item.get('recommendation', '')
+                }
+            else:
+                safe_item = {
+                    'id': str(idx + 1),
+                    'severity': 'UNKNOWN',
+                    'description': str(item),
+                    'endpoint': 'N/A',
+                    'recommendation': ''
+                }
+            safe_results.append(safe_item)
+
+        # Обновляем заголовки таблицы (5 колонок)
+        self.results_table.setColumnCount(5)
+        self.results_table.setHorizontalHeaderLabels([
+            tr('table_id'),
+            tr('table_severity'),
+            tr('table_description'),
+            "Эндпоинт",
+            "Рекомендация"
+        ])
+        
+        self.results_table.setRowCount(len(safe_results))
+        for row, item in enumerate(safe_results):
+            self.results_table.setItem(row, 0, QTableWidgetItem(str(item.get('id', ''))))
+            severity = item.get('severity', 'unknown')
+            badge = SeverityBadge(severity)
+            self.results_table.setCellWidget(row, 1, badge)
+            self.results_table.setItem(row, 2, QTableWidgetItem(item.get('description', '')))
+            self.results_table.setItem(row, 3, QTableWidgetItem(item.get('endpoint', 'N/A')))
+            self.results_table.setItem(row, 4, QTableWidgetItem(item.get('recommendation', '')))
+        
+        self.results_table.resizeRowsToContents()
+        self.results_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.results_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.results_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.results_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        self.results_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.Stretch)
