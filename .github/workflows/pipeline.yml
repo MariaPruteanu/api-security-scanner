@@ -44,19 +44,8 @@ jobs:
     - name: Build (Windows)
       if: runner.os == 'Windows'
       run: |
-        pyinstaller --onefile --windowed ^
-          --add-data "scanner;scanner" ^
-          --add-data "rules;rules" ^
-          --add-data "desktop_app;desktop_app" ^
-          --add-data "main.py;." ^
-          --add-data "license.txt;." ^
-          --add-data "run_report.py;." ^
-          --add-data "report_generator.py;." ^
-          --add-data "charts.py;." ^
-          --add-data "database.py;." ^
-          --add-data "stripe_config.py;." ^
-          --add-data "license_manager.py;." ^
-          launcher.py
+        pyinstaller --onefile --windowed --add-data "scanner;scanner" --add-data "rules;rules" --add-data "desktop_app;desktop_app" --add-data "main.py;." --add-data "license.txt;." --add-data "run_report.py;." --add-data "report_generator.py;." --add-data "charts.py;." --add-data "database.py;." --add-data "stripe_config.py;." --add-data "license_manager.py;." launcher.py
+      shell: cmd
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
