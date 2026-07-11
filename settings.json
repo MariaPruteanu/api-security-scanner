@@ -1,0 +1,13 @@
+{
+  "last_target": "https://petstore.swagger.io/v2/swagger.json",
+  "theme": "dark",
+  "language": "ru",
+  "license_key": "",
+  "save_history": true,
+  "max_history": 50,
+  "api_key": "S9G2pqAyP6RDyKg5KW13eCgtB-bz2KmnlovfQVfJz_o",
+  "api_url": "http://127.0.0.1:8000",
+  "timeout": 30,
+  "premium_key": "PREMIUM-123",
+  "enterprise_key": "ENTERPRISE-456"
+}
