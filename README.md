@@ -1,25 +1,41 @@
 # 🛡️ API Security Scanner Pro
 
-Профессиональный сканер уязвимостей для OpenAPI, Swagger 2.0 и Postman коллекций.  
-Поддерживает локальные файлы, облачный режим и интеграцию с CI/CD.
+Профессиональный инструмент для сканирования уязвимостей API
 
-## 🔥 Возможности
+## 📥 Установка
 
-- Сканирование OpenAPI 3.1, Swagger 2.0, Postman Collections.
-- Автоматическое определение формата.
-- 49+ правил на основе OWASP API Security Top 10.
-- Генерация красивых PDF/HTML отчётов с графиками.
-- CLI и Docker для интеграции в CI/CD.
-- Десктопное приложение (macOS, Windows, Linux).
+### macOS:
+1. Скачайте `APIScannerPro.app`
+2. Переместите в папку `Applications`
+3. Запустите (правой кнопкой → Открыть)
 
-## 🚀 Установка и запуск
+Если macOS показывает предупреждение:
+- Откройте Системные настройки → Защита и конфиденциальность
+- Нажмите "Разрешить" для APIScannerPro
 
-### Десктопное приложение
-Скачайте готовый файл для вашей ОС из [релизов](https://github.com/ваш-репозиторий/releases) и запустите.
+##  Оплата
 
-### Из исходников
-```bash
-git clone https://github.com/ваш-репозиторий
-cd api-security-scanner
-pip install -r requirements.txt
-python main_window.py
+1. Выберите тариф (Premium или Enterprise)
+2. Нажмите "Оплатить через TON"
+3. Отправьте TON на указанный адрес
+4. Отправьте чек на mashatira@gmail.com
+5. Получите лицензию в течение 24 часов
+
+## 🔧 Требования
+
+- macOS 10.15 или выше
+- Python 3.8+ (для ручной установки)
+
+## 📧 Поддержка
+
+Email: mashatira@gmail.com
+GitHub: https://github.com/MariaPruteanu/apiscanner-pro
+
+## 💰 Тарифы
+
+- **Premium**: $9.99/месяц или $99.99/год
+- **Enterprise**: $29.99/месяц или $299.99/год
+
+## 📖 Документация
+
+Полная документация: [Wiki](https://github.com/MariaPruteanu/apiscanner-pro/wiki)

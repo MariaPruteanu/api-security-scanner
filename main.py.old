@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import json
+import subprocess
+import threading
+import requests
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QLabel, QTextEdit, QFileDialog, QMessageBox,
+    QComboBox, QProgressBar, QTabWidget, QTableWidget, QTableWidgetItem,
+    QHeaderView, QLineEdit, QCheckBox, QGroupBox, QRadioButton,
+    QButtonGroup, QSpinBox, QSplitter
+)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt5.QtGui import QIcon, QFont, QColor, QTextCursor
+
+# ----------------------------------------------
+#  Функция для получения пути к ресурсам (работает и в сборке)
+# ----------------------------------------------
+def resource_path(relative_path):
+    """Возвращает абсолютный путь к ресурсу (внутри .app или в разработке)."""
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+# ----------------------------------------------
+#  Добавляем папку scanner в sys.path и импортируем core
+# ----------------------------------------------
+scanner_dir = resource_path('scanner')
+if scanner_dir not in sys.path:
+    sys.path.insert(0, scanner_dir)
+
+try:
+    import core
+    print("✅ Модуль scanner.core загружен")
+except ImportError as e:
+    print(f"❌ Ошибка импорта scanner.core: {e}")
+    core = None
+
+# ----------------------------------------------
+#  Класс главного окна
+# ----------------------------------------------
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("API Security Scanner Pro")
+        self.setGeometry(100, 100, 1000, 700)
+
+        # --- Центральный виджет ---
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+
+        # --- Верхняя панель (выбор файла, режим, кнопки) ---
+        top_layout = QHBoxLayout()
+        self.file_label = QLabel("Цель:")
+        self.file_path_edit = QLineEdit()
+        self.file_path_edit.setReadOnly(True)
+        self.file_path_edit.setPlaceholderText("Выберите спецификацию OpenAPI...")
+        self.browse_btn = QPushButton("Обзор")
+        self.browse_btn.clicked.connect(self.browse_file)
+
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItems(["Локальный", "Облачный"])
+
+        self.scan_btn = QPushButton("Начать сканировать")
+        self.scan_btn.clicked.connect(self.start_scan)
+
+        self.status_label = QLabel("Готов")
+
+        top_layout.addWidget(self.file_label)
+        top_layout.addWidget(self.file_path_edit)
+        top_layout.addWidget(self.browse_btn)
+        top_layout.addWidget(self.mode_combo)
+        top_layout.addWidget(self.scan_btn)
+        top_layout.addWidget(self.status_label)
+        main_layout.addLayout(top_layout)
+
+        # --- Таблица результатов ---
+        self.results_table = QTableWidget()
+        self.results_table.setColumnCount(4)
+        self.results_table.setHorizontalHeaderLabels(["ID", "Уровень опасности", "Описание", "Решение"])
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        main_layout.addWidget(self.results_table)
+
+        # --- Лог ---
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        main_layout.addWidget(self.log_text)
+
+        # --- Нижняя панель (статус) ---
+        bottom_layout = QHBoxLayout()
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setVisible(False)
+        bottom_layout.addWidget(self.progress_bar)
+        main_layout.addLayout(bottom_layout)
+
+        # --- Загрузка лицензии (пример) ---
+        self.api_key = self.load_api_key()
+        self.license_type = self.get_license_type()
+
+    # ----------------------------------------------
+    #  Методы
+    # ----------------------------------------------
+    def browse_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Выберите файл спецификации", "",
+            "OpenAPI files (*.json *.yaml *.yml);;All files (*.*)"
+        )
+        if file_path:
+            self.file_path_edit.setText(file_path)
+
+    def load_api_key(self):
+        # Заглушка – загрузите ваш API-ключ из файла или переменных
+        return "demo_key_123"
+
+    def get_license_type(self):
+        # Заглушка – определите тип лицензии (Бесплатный / Премиум)
+        return "Премиум (Платный)"
+
+    def log(self, message):
+        self.log_text.append(message)
+        QApplication.processEvents()
+
+    def start_scan(self):
+        file_path = self.file_path_edit.text()
+        if not file_path:
+            QMessageBox.warning(self, "Ошибка", "Выберите файл спецификации.")
+            return
+
+        if not os.path.exists(file_path):
+            QMessageBox.warning(self, "Ошибка", "Указанный файл не найден.")
+            return
+
+        if core is None:
+            QMessageBox.critical(self, "Ошибка", "Сканер не загружен (scanner.core отсутствует).")
+            return
+
+        mode = self.mode_combo.currentText()
+        self.log(f"🚀 Запуск сканирования... Режим: {mode}")
+        self.scan_btn.setEnabled(False)
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)
+
+        # Запуск сканирования в отдельном потоке
+        self.scan_thread = threading.Thread(target=self.run_scan, args=(file_path, mode))
+        self.scan_thread.start()
+
+    def run_scan(self, file_path, mode):
+        try:
+            if mode == "Локальный":
+                self.log("🔍 Запуск локального сканирования...")
+                results = core.scan_file(file_path)   # предполагается, что core имеет функцию scan_file
+                self.display_results(results)
+            else:
+                self.log("☁️ Запуск облачного сканирования...")
+                # Здесь ваш код для отправки на бэкенд
+                # Например:
+                # response = requests.post("http://localhost:8000/scan", json={"file": file_path})
+                # results = response.json()
+                self.log("⚠️ Облачное сканирование пока не реализовано.")
+        except Exception as e:
+            self.log(f"❌ Ошибка сканирования: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", f"Сканирование завершилось ошибкой:\n{str(e)}")
+        finally:
+            self.scan_btn.setEnabled(True)
+            self.progress_bar.setVisible(False)
+            self.progress_bar.setRange(0, 100)
+
+    def display_results(self, results):
+        """Отображение результатов в таблице (пример)."""
+        self.log(f"📊 Получено результатов: {len(results)}")
+        self.results_table.setRowCount(len(results))
+        for i, item in enumerate(results):
+            self.results_table.setItem(i, 0, QTableWidgetItem(str(item.get('id', ''))))
+            self.results_table.setItem(i, 1, QTableWidgetItem(item.get('severity', '')))
+            self.results_table.setItem(i, 2, QTableWidgetItem(item.get('description', '')))
+            self.results_table.setItem(i, 3, QTableWidgetItem(item.get('solution', '')))
+
+    # ----------------------------------------------
+    #  Закрытие приложения (closeEvent)
+    # ----------------------------------------------
+    def closeEvent(self, event):
+        # Безопасное закрытие – если есть активный поток, можно прервать
+        if hasattr(self, 'scan_thread') and self.scan_thread.is_alive():
+            reply = QMessageBox.question(
+                self, 'Подтверждение',
+                'Сканирование ещё выполняется. Вы уверены, что хотите выйти?',
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.No:
+                event.ignore()
+                return
+        event.accept()
+
+# ----------------------------------------------
+#  Запуск приложения
+# ----------------------------------------------
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

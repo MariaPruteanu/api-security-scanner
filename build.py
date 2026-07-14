@@ -1,15 +1,12 @@
 import PyInstaller.__main__
 import os
 import platform
-import sys
 
 def build():
-    # Определяем целевую платформу
     system = platform.system()
     args = [
         'main_window.py',
         '--name=APIScannerPro',
-        '--onefile',
         '--windowed',
         '--add-data=scanner:scanner',
         '--add-data=rules:rules',
@@ -20,19 +17,30 @@ def build():
         '--add-data=advanced_report.py:.',
         '--add-data=charts.py:.',
         '--add-data=config:config',
+        '--add-data=version.py:.',
+        '--add-data=update_checker.py:.',
+        '--add-data=usage_tracker.py:.',
+        '--add-data=desktop_usage.py:.',
+        '--add-data=stripe_payment.py:.',
+        '--add-data=web:web',
+        '--add-data=USER_GUIDE.txt:.',
+        '--add-data=/Users/lenovo1/Library/Python/3.9/lib/python/site-packages/PyQt5/Qt5/plugins:PyQt5/Qt5/plugins',
         '--hidden-import=reportlab',
         '--hidden-import=matplotlib',
         '--hidden-import=jinja2',
         '--hidden-import=PyQt5',
+        '--hidden-import=stripe',
+        '--hidden-import=desktop_app.settings',
+        '--hidden-import=key_integration',
         '--collect-all=reportlab',
         '--collect-all=matplotlib',
+        '--osx-bundle-identifier=com.yourcompany.apiscannerpro',
     ]
     if system == 'Darwin':
         args.append('--icon=app_icon.icns')
     elif system == 'Windows':
         args.append('--icon=app_icon.ico')
     else:
-        # Linux — используем .png или иконку по умолчанию
         if os.path.exists('app_icon.png'):
             args.append('--icon=app_icon.png')
     PyInstaller.__main__.run(args)

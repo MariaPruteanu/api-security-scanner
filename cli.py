@@ -3,21 +3,16 @@
 API Security Scanner - CLI
 Usage:
     python cli.py <target> [--type basic|premium|enterprise] [--output json|html|pdf] [--out-file FILE]
-Example:
-    python cli.py https://petstore.swagger.io/v2/swagger.json --type premium --output json
-    python cli.py ./openapi.yaml --output pdf --out-file report.pdf
 """
 import sys
 import os
 import json
 import asyncio
 import argparse
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from scanner.core import APIScanner
-from loader import load_specification
 
 async def scan(target, scan_type='basic'):
     scanner = APIScanner(base_url=target, scan_type=scan_type)
@@ -64,14 +59,13 @@ def generate_pdf_from_results(results, target, out_file):
     from reportlab.pdfbase.ttfonts import TTFont
     import os
 
-    # Ищем доступные шрифты для кириллицы
     font_paths = [
         "DejaVuSans.ttf",
-        "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux
-        "C:/Windows/Fonts/arial.ttf",  # Windows
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "C:/Windows/Fonts/arial.ttf",
     ]
-    font_name = 'Helvetica'  # fallback
+    font_name = 'Helvetica'
     for path in font_paths:
         if os.path.exists(path):
             try:
@@ -83,7 +77,6 @@ def generate_pdf_from_results(results, target, out_file):
 
     doc = SimpleDocTemplate(out_file, pagesize=A4)
     styles = getSampleStyleSheet()
-    # Используем уникальные имена, чтобы не конфликтовать со встроенными стилями
     styles.add(ParagraphStyle(name='CustomTitle', fontName=font_name, fontSize=20, alignment=1, spaceAfter=20))
     styles.add(ParagraphStyle(name='CustomBody', fontName=font_name, fontSize=10, leading=12))
 
@@ -142,7 +135,7 @@ def main():
             with open(args.out_file, 'w', encoding='utf-8') as f:
                 f.write(output)
         else:
-            print(output)
+            print(output)  # это в stdout — OK
 
     elif args.output == 'html':
         html_content = generate_html_from_results(results, target=args.target)
@@ -156,7 +149,7 @@ def main():
         if not args.out_file:
             args.out_file = "report.pdf"
         generate_pdf_from_results(results, target=args.target, out_file=args.out_file)
-        print(f"PDF saved to {args.out_file}")
+        print(f"PDF saved to {args.out_file}")  # это тоже OK
 
 if __name__ == '__main__':
     main()

@@ -25,12 +25,8 @@ from desktop_app.settings import load_settings, save_settings
 from desktop_app.database import init_db, save_scan, get_history, get_scan, delete_scan, clear_history
 from desktop_app.export import export_json, export_html, export_pdf
 from i18n import tr, set_language
-from key_integration import apply_keys_from_files
 from update_checker import check_updates_async
 
-# =============================================================================
-# Стили (тёмная тема) – без CSS, только Qt-стили
-# =============================================================================
 DARK_STYLE = """
 QMainWindow { background-color: #1a1a2e; }
 QWidget { background-color: #16213e; color: #e0e0e0; }
@@ -71,11 +67,6 @@ QSpinBox { background-color: #2a2a4a; color: #e0e0e0; border: 1px solid #4a4a6a;
 """
 LIGHT_STYLE = ""
 
-# ----------------------------------------------------------------------
-# SeverityBadge
-# ----------------------------------------------------------------------
-
-
 class SeverityBadge(QLabel):
     def __init__(self, severity, parent=None):
         super().__init__(parent)
@@ -96,11 +87,6 @@ class SeverityBadge(QLabel):
             font-weight: 700;
             font-size: 11px;
         """)
-
-# ----------------------------------------------------------------------
-# LicenseManager
-# ----------------------------------------------------------------------
-
 
 class LicenseManager:
     VALID_PREMIUM_KEY = "PREMIUM-123"
@@ -123,11 +109,6 @@ class LicenseManager:
             QLineEdit.Password
         )
         return key if ok else ""
-
-# ----------------------------------------------------------------------
-# CloudScanner
-# ----------------------------------------------------------------------
-
 
 class CloudScanner:
     def __init__(self, api_key, base_url="http://127.0.0.1:8000"):
@@ -171,11 +152,6 @@ class CloudScanner:
             return resp.json()
         except Exception as e:
             raise Exception(f"Ошибка результата: {e}")
-
-# ----------------------------------------------------------------------
-# ScannerThread
-# ----------------------------------------------------------------------
-
 
 class ScannerThread(QThread):
     finished = pyqtSignal(str)
@@ -251,17 +227,7 @@ class ScannerThread(QThread):
                 formatted = []
                 for item in raw_results:
                     if isinstance(item, dict):
-                        desc = (
-                            item.get('description') or item.get('message') or f"{
-                                item.get(
-                                    'vulnerability',
-                                    '')} {
-                                item.get(
-                    'evidence',
-                    '')} {
-                        item.get(
-                            'recommendation',
-                            '')}".strip())
+                        desc = item.get("description") or item.get("message") or f"{item.get('vulnerability', '')} {item.get('evidence', '')} {item.get('recommendation', '')}".strip()
                         if not desc:
                             desc = str(item)
                         formatted.append({
@@ -276,7 +242,6 @@ class ScannerThread(QThread):
                             'severity': getattr(item, 'severity', ''),
                             'description': desc
                         })
-
                 self.log(f"📊 Преобразовано записей: {len(formatted)}")
                 self.finished.emit(json.dumps(formatted, ensure_ascii=False))
 
@@ -300,11 +265,6 @@ class ScannerThread(QThread):
         except Exception as e:
             if not self._is_stopped:
                 self.error.emit(str(e))
-
-# ----------------------------------------------------------------------
-# HistoryDialog
-# ----------------------------------------------------------------------
-
 
 class HistoryDialog(QDialog):
     def __init__(self, parent=None):
@@ -397,11 +357,6 @@ class HistoryDialog(QDialog):
             layout.addWidget(btn, alignment=Qt.AlignRight)
             dlg.exec_()
 
-# ----------------------------------------------------------------------
-# SettingsDialog
-# ----------------------------------------------------------------------
-
-
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -446,16 +401,13 @@ class SettingsDialog(QDialog):
         layout = QFormLayout(self)
         layout.setSpacing(12)
 
-        # Тема
         self.theme_combo = QComboTheme()
         self.theme_combo.addItems(["🌙 Тёмная", "☀️ Светлая"])
         self.theme_combo.setCurrentIndex(0 if self.settings.get('theme') == 'dark' else 1)
         layout.addRow("Тема:", self.theme_combo)
 
-        # Язык
         self.lang_combo = QComboBox()
         from i18n import TRANSLATIONS
-
         self.lang_combo.addItems(list(TRANSLATIONS.keys()))
         self.lang_combo.setCurrentText(self.settings.get("language", "ru"))
         layout.addRow("🌍 Язык / Language:", self.lang_combo)
@@ -503,19 +455,12 @@ class SettingsDialog(QDialog):
         self.settings['api_url'] = self.api_url_edit.text()
         self.settings['language'] = self.lang_combo.currentText()
         save_settings(self.settings)
-
         from i18n import set_language
-
         set_language(self.settings['language'])
         parent = self.parent()
         if parent and hasattr(parent, 'retranslate_ui'):
             parent.retranslate_ui()
         self.accept()
-
-# =============================================================================
-# Главное окно (улучшенный интерфейс)
-# =============================================================================
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -562,7 +507,6 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         menubar = self.menuBar()
 
-        # Файл
         self.file_menu = menubar.addMenu("📁 Файл")
         self.export_menu = self.file_menu.addMenu("📤 Экспорт отчёта")
         for fmt, label in [('json', 'JSON'), ('html', 'HTML'), ('pdf', 'PDF')]:
@@ -578,19 +522,16 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         self.file_menu.addAction(exit_action)
 
-        # История
         history_menu = menubar.addMenu("📜 История")
         show_history = QAction("📋 Показать историю", self)
         show_history.triggered.connect(self.show_history)
         history_menu.addAction(show_history)
 
-        # Настройки
         settings_menu = menubar.addMenu("⚙️ Настройки")
         settings_action = QAction("🛠 Дополнительные опции", self)
         settings_action.triggered.connect(self.open_settings)
         settings_menu.addAction(settings_action)
 
-        # Помощь
         help_menu = menubar.addMenu("❓ Помощь")
         about_action = QAction("ℹ️ О программе", self)
         about_action.triggered.connect(self.show_about)
@@ -608,7 +549,6 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(16)
         main_layout.setContentsMargins(30, 20, 30, 20)
 
-        # Заголовок
         title_layout = QHBoxLayout()
         title_label = QLabel("🛡️ API Security Scanner Pro")
         title_label.setStyleSheet("font-size: 20px; font-weight: bold; color: #e0e0e0;")
@@ -624,7 +564,6 @@ class MainWindow(QMainWindow):
         line.setStyleSheet("background-color: #4a4a6a; max-height: 1px;")
         main_layout.addWidget(line)
 
-        # ---- Строка 1: цель и кнопка "Обзор" ----
         row1 = QHBoxLayout()
         row1.setSpacing(8)
         self.target_label = QLabel("🎯 Target:")
@@ -638,7 +577,6 @@ class MainWindow(QMainWindow):
         row1.addWidget(self.browse_btn)
         main_layout.addLayout(row1)
 
-        # ---- Строка 2: режим, тип, API-ключ, кнопки ----
         row2 = QHBoxLayout()
         row2.setSpacing(10)
 
@@ -669,7 +607,6 @@ class MainWindow(QMainWindow):
         self.scan_btn.clicked.connect(self.start_scan)
         row2.addWidget(self.scan_btn)
 
-        # Кнопка переключения языка
         self.lang_btn = QPushButton("RU" if self.settings.get("language", "ru") == "ru" else "EN")
         self.lang_btn.setFixedWidth(40)
         self.lang_btn.clicked.connect(self.toggle_language)
@@ -685,13 +622,11 @@ class MainWindow(QMainWindow):
         row2.addStretch(1)
         main_layout.addLayout(row2)
 
-        # Прогресс-бар
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
         self.progress_bar.setFormat("🔄 Готов к работе")
         main_layout.addWidget(self.progress_bar)
 
-        # Вкладки
         self.tabs = QTabWidget()
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(3)
@@ -713,6 +648,34 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.status_label)
 
         self.on_mode_changed(0)
+        # Загружаем ключи из файлов (после создания интерфейса)
+        self._load_keys()
+
+    def _load_keys(self):
+        """Загружает ключи из файлов и применяет их."""
+        try:
+            import os, sys
+            if getattr(sys, "frozen", False):
+                base = sys._MEIPASS
+            else:
+                base = os.path.dirname(os.path.abspath(__file__))
+            for key_file, key_name in [("premium_key.txt", "premium"), ("enterprise_key.txt", "enterprise"), ("api_key.txt", "api")]:
+                path = os.path.join(base, "config", key_file)
+                if os.path.exists(path):
+                    with open(path, "r") as f:
+                        key = f.read().strip()
+                        if key_name == "api":
+                            self.api_key = key
+                            if hasattr(self, "api_key_input"):
+                                self.api_key_input.setText(key)
+                            self.settings["api_key"] = key
+                        else:
+                            self.license_valid[key_name] = True
+                            self.settings[f"{key_name}_key"] = key
+            self.update_usage_status()
+            print("[DEBUG] _load_keys: ключи успешно загружены")
+        except Exception as e:
+            print(f"[ERROR] _load_keys: {e}")
 
     def on_mode_changed(self, index):
         if index == 1:
@@ -732,7 +695,7 @@ class MainWindow(QMainWindow):
         try:
             with socket.create_connection(("127.0.0.1", 8000), timeout=1):
                 return True
-        except BaseException:
+        except:
             return False
 
     def _open_terminal_with_command(self):
@@ -740,7 +703,7 @@ class MainWindow(QMainWindow):
             base_dir = sys._MEIPASS
         else:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        cmd = f"cd {base_dir} && python3 main.py"
+        cmd = f"cd {base_dir} && /usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8000"
         script = f'''
         tell application "Terminal"
             activate
@@ -752,9 +715,33 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", f"Не удалось открыть терминал: {e}")
 
+    def _ensure_backend_running(self):
+        """Проверяет и запускает бэкенд, если он не работает."""
+        if self._is_backend_running():
+            self.append_log("✅ Бэкенд уже запущен")
+            return True
+        self.append_log("⏳ Запускаем бэкенд...")
+        try:
+            import subprocess, time
+            if hasattr(sys, '_MEIPASS'):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            cmd = [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+            subprocess.Popen(cmd, cwd=base_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            time.sleep(2)
+            if self._is_backend_running():
+                self.append_log("✅ Бэкенд успешно запущен")
+                return True
+            else:
+                self.append_log("⚠️ Бэкенд не запустился. Попробуйте запустить вручную.")
+                return False
+        except Exception as e:
+            self.append_log(f"❌ Ошибка запуска бэкенда: {e}")
+            return False
+
     def toggle_language(self):
         from i18n import set_language
-
         current = self.settings.get("language", "ru")
         new_lang = "en" if current == "ru" else "ru"
         self.settings["language"] = new_lang
@@ -781,6 +768,9 @@ class MainWindow(QMainWindow):
                 scan_type = "enterprise"
 
             if mode == 'cloud':
+                if not self._ensure_backend_running():
+                    self.append_log("❌ Бэкенд не запущен, сканирование невозможно")
+                    return
                 api_key = self.api_key_input.text().strip()
                 if not api_key:
                     QMessageBox.warning(self, "Требуется API-ключ", "Для облачного режима введите ваш API-ключ.")
@@ -798,20 +788,6 @@ class MainWindow(QMainWindow):
                     else:
                         QMessageBox.warning(self, "Ошибка", f"Неверный ключ для {scan_type.capitalize()}.")
                         return
-
-                if not self._is_backend_running():
-                    reply = QMessageBox.question(
-                        self, "Бэкенд не запущен",
-                        "Для облачного режима необходимо запустить бэкенд.\n\n"
-                        "Нажмите «Открыть терминал», чтобы открыть окно терминала с готовой командой.\n"
-                        "После запуска бэкенда вернитесь в приложение и нажмите «Start Scan» снова.",
-                        QMessageBox.Yes | QMessageBox.No,
-                        QMessageBox.Yes
-                    )
-                    if reply == QMessageBox.No:
-                        return
-                    self._open_terminal_with_command()
-                    return
 
             if mode == 'local':
                 if scan_type in ("premium", "enterprise") and not self.license_valid.get(scan_type, False):
@@ -1027,14 +1003,12 @@ class MainWindow(QMainWindow):
         dlg = SettingsDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.settings = load_settings()
-        apply_keys_from_files(self)
-        check_updates_async(self)
-        self.apply_theme()
-        self.api_key = self.settings.get('api_key', '')
-        self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
-        self.timeout = self.settings.get('timeout', 30)
-        if self.api_key:
-            self.api_key_input.setText(self.api_key)
+            self.apply_theme()
+            self.api_key = self.settings.get('api_key', '')
+            self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')
+            self.timeout = self.settings.get('timeout', 30)
+            if self.api_key:
+                self.api_key_input.setText(self.api_key)
             if self.settings.get('premium_key') and LicenseManager.validate_key(
                     self.settings['premium_key'], 'premium'):
                 self.license_valid['premium'] = True
@@ -1061,11 +1035,8 @@ class MainWindow(QMainWindow):
                           "☁️ Облачный режим требует запуска бэкенда. При необходимости откроется терминал с командой.")
 
     def generate_report(self):
-        """Генерирует PDF-отчёт для последнего сканирования"""
         try:
-            import subprocess
-            import sqlite3
-            from PyQt5.QtWidgets import QMessageBox
+            import subprocess, sqlite3
             conn = sqlite3.connect("scanner.db")
             c = conn.cursor()
             c.execute("SELECT id FROM scan_tasks ORDER BY id DESC LIMIT 1")
@@ -1110,15 +1081,26 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'export_menu'):
             self.export_menu.setTitle(tr('menu_export'))
 
+    def update_usage_status(self):
+        is_premium = self.license_valid.get('premium', False)
+        is_enterprise = self.license_valid.get('enterprise', False)
+        from desktop_usage import get_tier_label, get_remaining_scans
+        tier = get_tier_label(is_premium, is_enterprise)
+        if is_premium or is_enterprise:
+            scans_text = "∞ (безлимит)"
+        else:
+            remaining = get_remaining_scans()
+            scans_text = f"{remaining} из 5"
+        self.status_label.setText(f"Тариф: {tier} | Сканирований осталось: {scans_text}")
+
+    def buy_pro(self):
+        import webbrowser
+        webbrowser.open("https://your-site.com/checkout")
+
     def closeEvent(self, event):
         self.settings['last_target'] = self.target_input.text().strip()
         save_settings(self.settings)
         event.accept()
-
-# ----------------------------------------------------------------------
-# Запуск
-# ----------------------------------------------------------------------
-
 
 def run():
     app = QApplication(sys.argv)
@@ -1126,7 +1108,6 @@ def run():
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     run()
