@@ -17,7 +17,7 @@ isort>=5.13.0
 bandit>=1.7.0
 safety>=2.3.0
 pre-commit>=3.6.0
-PyQt5==5.15.9
+PyQt5
 pyyaml==6.0
 jsonschema==4.17
 python-dotenv==1.0.0
