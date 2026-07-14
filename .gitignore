@@ -9,3 +9,15 @@ __pycache__/
 *.spec
 *.dmg
 *.app
+
+# Личные данные и секреты
+.env
+*.key
+settings.json
+my_api.json
+
+# Бэкапы и мусор
+*.bak
+*.old
+*.oldcat
+*.corrupted
