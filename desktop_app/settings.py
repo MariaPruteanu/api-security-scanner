@@ -1,34 +1,23 @@
-import json
 import os
+import json
 
-SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "..", "settings.json")
-DEFAULT_SETTINGS = {
-    "theme": "dark",
-    "language": "ru",
-    "timeout": 30,
-    "save_history": True,
-    "max_history": 50,
-    "premium_key": "",
-    "enterprise_key": "",
-    "api_url": "http://127.0.0.1:8000",
-    "api_key": "",
-    "last_target": ""
-}
+def get_settings_path():
+    home = os.path.expanduser("~")
+    app_support = os.path.join(home, "Library", "Application Support", "APIScannerPro")
+    os.makedirs(app_support, exist_ok=True)
+    return os.path.join(app_support, "settings.json")
+
+SETTINGS_FILE = get_settings_path()
 
 def load_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
-            with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                # Merge with defaults
-                for key, value in DEFAULT_SETTINGS.items():
-                    if key not in data:
-                        data[key] = value
-                return data
+            with open(SETTINGS_FILE, 'r') as f:
+                return json.load(f)
         except:
-            return DEFAULT_SETTINGS.copy()
-    return DEFAULT_SETTINGS.copy()
+            return {}
+    return {}
 
 def save_settings(settings):
-    with open(SETTINGS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(settings, f, ensure_ascii=False, indent=2)
+    with open(SETTINGS_FILE, 'w') as f:
+        json.dump(settings, f, indent=2)

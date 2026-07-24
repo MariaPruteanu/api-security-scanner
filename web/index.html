@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>API Security Scanner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f4f6f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 2em; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a237e; }
+        .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        input, button { padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; }
+        button { background: #1a237e; color: white; border: none; cursor: pointer; }
+        button:hover { background: #283593; }
+        .pro-btn { background: #f57c00; }
+        .pro-btn:hover { background: #e65100; }
+        #results { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1a237e; color: white; padding: 8px; }
+        td, th { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        #status { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🛡️ API Security Scanner</h1>
+    <p>Загрузите OpenAPI/Swagger/Postman файл</p>
+    <div class="flex">
+        <input type="file" id="fileInput" accept=".json,.yaml,.yml">
+        <button id="scanBtn">🔍 Начать сканирование</button>
+        <button id="proBtn" class="pro-btn">⭐ Купить Pro</button>
+    </div>
+    <div id="status">Текущий тариф: <span id="tierDisplay">Free</span> | Осталось сканирований: <span id="scansLeft">5</span></div>
+    <div id="results">
+        <p><strong>Результаты:</strong></p>
+        <div id="output"></div>
+    </div>
+</div>
+<script>
+    // Получение статуса подписки
+    async function updateStatus() {
+        try {
+            const resp = await fetch('/api/subscription-status');
+            const data = await resp.json();
+            document.getElementById('tierDisplay').textContent = data.tier || 'Free';
+            document.getElementById('scansLeft').textContent = data.scans_left !== undefined ? data.scans_left : '?';
+        } catch (e) {
+            console.warn('Не удалось получить статус');
+        }
+    }
+    updateStatus();
+
+    // Сканирование
+    document.getElementById('scanBtn').addEventListener('click', async function() {
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+        if (!fileInput.files.length) {
+            output.innerHTML = '<p style="color:red;">Выберите файл</p>';
+            return;
+        }
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        output.innerHTML = '⏳ Сканирование...';
+        try {
+            const response = await fetch('/api/scan', { method: 'POST', body: formData });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Ошибка сервера');
+            }
+            const data = await response.json();
+            if (data.results && data.results.length) {
+                let html = `<table><tr><th>#</th><th>Severity</th><th>Description</th><th>Endpoint</th></tr>`;
+                data.results.forEach((item, idx) => {
+                    html += `<tr><td>${idx+1}</td><td>${item.severity}</td><td>${item.description}</td><td>${item.endpoint || 'N/A'}</td></tr>`;
+                });
+                html += '</table>';
+                output.innerHTML = html;
+            } else {
+                output.innerHTML = '<p>Уязвимостей не найдено</p>';
+            }
+            updateStatus(); // обновляем счётчик после сканирования
+        } catch (e) {
+            output.innerHTML = `<p style="color:red;">Ошибка: ${e.message}</p>`;
+        }
+    });
+
+    // Переход на оформление Pro
+    document.getElementById('proBtn').addEventListener('click', async function() {
+        try {
+            const resp = await fetch('/api/create-checkout-session', { method: 'POST' });
+            if (!resp.ok) throw new Error('Не удалось создать сессию оплаты');
+            const data = await resp.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert('Ошибка: не удалось получить ссылку на оплату');
+            }
+        } catch (e) {
+            alert('Ошибка: ' + e.message);
+        }
+    });
+</script>
+</div>
+</body>
+</html>

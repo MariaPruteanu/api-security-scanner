@@ -27,3 +27,4 @@ reportlab==4.0.4          # для PDF
 jinja2==3.1.2             # для HTML
 httpx
 pyinstaller>=6.0.0
+openapi-spec-validator>=0.5.0

@@ -26,3 +26,374 @@
   recommendation: "Перейти на RS256 или ES256"
   condition:
     has_security: true
+
+- name: "Server Version Disclosure"
+  severity: "low"
+  description: "Сервер раскрывает версию в заголовках (Server, X-Powered-By)"
+  recommendation: "Скрыть или удалить заголовки Server и X-Powered-By"
+  condition:
+    method: "get"
+
+- name: "Missing CORS Headers"
+  severity: "medium"
+  description: "Отсутствуют заголовки CORS (Access-Control-Allow-Origin)"
+  recommendation: "Настроить CORS в соответствии с политикой безопасности"
+  condition:
+    method: "get"
+
+- name: "Deprecated TLS Version Allowed"
+  severity: "high"
+  description: "Разрешены устаревшие версии TLS (1.0, 1.1)"
+  recommendation: "Отключить TLS 1.0 и 1.1, оставить только 1.2 и выше"
+  condition:
+    method: "get"
+
+- name: "Information Leak in Error Responses"
+  severity: "medium"
+  description: "Ошибки возвращают стек-трейс или внутреннюю информацию"
+  recommendation: "Настроить обработку ошибок, возвращать только общие сообщения"
+  condition:
+    method: "get"
+
+- name: "Missing Content-Security-Policy"
+  severity: "medium"
+  description: "Отсутствует заголовок Content-Security-Policy"
+  recommendation: "Добавить CSP для защиты от XSS и инъекций"
+  condition:
+    method: "get"
+
+# === Группа 1: Аутентификация и авторизация (10 правил) ===
+- name: "Missing API Key Authentication"
+  severity: "high"
+  description: "Эндпоинт не требует API-ключ для доступа"
+  recommendation: "Добавить проверку API-ключа в заголовках"
+  condition:
+    method: "get"
+    has_security: false
+
+- name: "Basic Auth Over HTTP"
+  severity: "critical"
+  description: "Используется Basic Auth без HTTPS — пароли передаются в открытом виде"
+  recommendation: "Перейти на HTTPS или использовать более безопасный метод (OAuth2, JWT)"
+  condition:
+    method: "get"
+
+- name: "OAuth2 Implicit Flow Used"
+  severity: "high"
+  description: "Используется небезопасный implicit flow OAuth2"
+  recommendation: "Перейти на authorization code flow с PKCE"
+  condition:
+    has_security: true
+
+- name: "Session Token Not Rotated"
+  severity: "high"
+  description: "Сессионный токен не меняется при повышении прав или входе"
+  recommendation: "Генерировать новый токен при каждом логине и изменении роли"
+  condition:
+    method: "post"
+
+- name: "Missing Logout Endpoint"
+  severity: "low"
+  description: "Нет эндпоинта для выхода, сессии не инвалидируются"
+  recommendation: "Добавить эндпоинт /logout с инвалидацией токена"
+  condition:
+    method: "post"
+
+- name: "Weak Password Policy"
+  severity: "medium"
+  description: "Нет требований к сложности пароля (минимальная длина, спецсимволы)"
+  recommendation: "Ввести политику паролей: минимум 8 символов, буквы, цифры, спецсимволы"
+  condition:
+    method: "post"
+
+- name: "Account Lockout Not Implemented"
+  severity: "medium"
+  description: "Нет защиты от перебора паролей (блокировка после N попыток)"
+  recommendation: "Внедрить механизм блокировки на 5-10 минут после 5 неудачных попыток"
+  condition:
+    method: "post"
+
+- name: "JWT Without Expiration"
+  severity: "high"
+  description: "JWT-токен не имеет срока действия (exp)"
+  recommendation: "Всегда устанавливать exp с разумным временем жизни"
+  condition:
+    has_security: true
+
+- name: "JWT Without Audience Claim"
+  severity: "medium"
+  description: "JWT не содержит aud (audience), что может привести к подмене токена между сервисами"
+  recommendation: "Добавить aud и проверять его на сервере"
+  condition:
+    has_security: true
+
+- name: "Session Fixation Possible"
+  severity: "high"
+  description: "Сессионный ID не меняется при входе, что позволяет зафиксировать сессию"
+  recommendation: "Генерировать новый сессионный ID при каждом входе"
+  condition:
+    method: "post"
+
+# === Группа 2: Чувствительные данные (8 правил) ===
+- name: "Password in URL"
+  severity: "critical"
+  description: "Пароль передаётся в URL (query или path)"
+  recommendation: "Передавать пароль только в теле POST-запроса"
+  condition:
+    method: "get"
+
+- name: "API Key in URL"
+  severity: "high"
+  description: "API-ключ передаётся в URL, что может быть залоггировано"
+  recommendation: "Передавать API-ключ в заголовке Authorization или X-API-Key"
+  condition:
+    method: "get"
+
+- name: "Credit Card Number in Response"
+  severity: "critical"
+  description: "Ответ содержит номер кредитной карты или его часть"
+  recommendation: "Маскировать номера карт (например, показывать только последние 4 цифры)"
+  condition:
+    method: "get"
+
+- name: "Email in Response Without Protection"
+  severity: "medium"
+  description: "Email-адреса возвращаются в открытом виде, что может быть использовано для спама"
+  recommendation: "Маскировать или шифровать email, если это не требуется"
+  condition:
+    method: "get"
+
+- name: "Internal IP Disclosure"
+  severity: "low"
+  description: "Ответ содержит внутренние IP-адреса сервера"
+  recommendation: "Удалить IP-адреса из ответов, использовать общие сообщения"
+  condition:
+    method: "get"
+
+- name: "Database Connection String in Error"
+  severity: "critical"
+  description: "Ошибка может раскрыть строку подключения к БД"
+  recommendation: "Настроить обработку ошибок, не показывать детали"
+  condition:
+    method: "get"
+
+- name: "Sensitive Headers Exposed (e.g., X-Debug-Token)"
+  severity: "high"
+  description: "Заголовки ответа содержат отладочную информацию"
+  recommendation: "Удалить заголовки, начинающиеся с X-Debug, X-Developer"
+  condition:
+    method: "get"
+
+- name: "Personal Data in Query Log"
+  severity: "medium"
+  description: "Личные данные (имя, телефон) передаются в query и могут сохраняться в логах"
+  recommendation: "Передавать личные данные только в теле запроса"
+  condition:
+    method: "get"
+
+# === Группа 3: Инъекции и валидация (8 правил) ===
+- name: "SQL Injection Risk"
+  severity: "critical"
+  description: "Параметр выглядит как поле для SQL-инъекции (например, id=1 OR 1=1)"
+  recommendation: "Использовать параметризованные запросы, валидировать входные данные"
+  condition:
+    method: "get"
+
+- name: "NoSQL Injection Risk"
+  severity: "critical"
+  description: "Параметр может содержать операторы NoSQL (например, { $ne: null })"
+  recommendation: "Валидировать и очищать входные данные для NoSQL"
+  condition:
+    method: "get"
+
+- name: "XSS Risk in Parameter"
+  severity: "high"
+  description: "Параметр может содержать XSS-скрипт (<script>alert(1)</script>)"
+  recommendation: "Экранировать вывод, использовать CSP"
+  condition:
+    method: "get"
+
+- name: "Command Injection Risk"
+  severity: "critical"
+  description: "Параметр может содержать команды оболочки (; rm -rf /)"
+  recommendation: "Избегать вызова системных команд с пользовательским вводом"
+  condition:
+    method: "get"
+
+- name: "Path Traversal Risk"
+  severity: "high"
+  description: "Параметр может использоваться для доступа к файлам вне разрешённой директории (../../etc/passwd)"
+  recommendation: "Нормализовать путь, проверять, что он внутри разрешённой папки"
+  condition:
+    method: "get"
+
+- name: "File Upload Without Validation"
+  severity: "high"
+  description: "Разрешена загрузка файлов без проверки типа и размера"
+  recommendation: "Проверять MIME-тип, расширение, размер, сканировать на вирусы"
+  condition:
+    method: "post"
+
+- name: "XML External Entity (XXE) Risk"
+  severity: "critical"
+  description: "XML-парсер разрешает внешние сущности, что может привести к чтению файлов"
+  recommendation: "Отключить внешние сущности в парсере XML"
+  condition:
+    method: "post"
+
+- name: "Mass Assignment Risk"
+  severity: "high"
+  description: "Эндпоинт позволяет обновлять все поля объекта, включая скрытые (например, is_admin)"
+  recommendation: "Использовать белый список полей, разрешённых для обновления"
+  condition:
+    method: "put"
+
+# === Группа 4: Конфигурация и заголовки (8 правил) ===
+- name: "Missing X-Frame-Options Header"
+  severity: "medium"
+  description: "Отсутствует заголовок X-Frame-Options, что позволяет clickjacking"
+  recommendation: "Добавить X-Frame-Options: DENY или SAMEORIGIN"
+  condition:
+    method: "get"
+
+- name: "Missing X-Content-Type-Options Header"
+  severity: "medium"
+  description: "Отсутствует заголовок X-Content-Type-Options: nosniff"
+  recommendation: "Добавить заголовок для защиты от MIME-сниффинга"
+  condition:
+    method: "get"
+
+- name: "Missing Referrer-Policy Header"
+  severity: "low"
+  description: "Отсутствует Referrer-Policy, что может привести к утечке referer"
+  recommendation: "Установить Referrer-Policy: no-referrer-when-downgrade"
+  condition:
+    method: "get"
+
+- name: "HSTS Header Not Set"
+  severity: "high"
+  description: "Отсутствует Strict-Transport-Security, что позволяет атаки man-in-the-middle"
+  recommendation: "Добавить заголовок HSTS с max-age и includeSubDomains"
+  condition:
+    method: "get"
+
+- name: "CORS With Wildcard Origin"
+  severity: "medium"
+  description: "Access-Control-Allow-Origin: * разрешает доступ с любых доменов"
+  recommendation: "Ограничить список разрешённых доменов"
+  condition:
+    method: "get"
+
+- name: "CORS With Credentials Allowed"
+  severity: "high"
+  description: "Access-Control-Allow-Credentials: true при Allow-Origin: *, что небезопасно"
+  recommendation: "Не использовать credentials с wildcard, либо ограничить домены"
+  condition:
+    method: "get"
+
+- name: "Server Header Exposes Version"
+  severity: "low"
+  description: "Заголовок Server содержит версию (например, nginx/1.18.0)"
+  recommendation: "Убрать версию из заголовка Server или удалить его"
+  condition:
+    method: "get"
+
+- name: "X-Powered-By Header Exposed"
+  severity: "low"
+  description: "Заголовок X-Powered-By показывает технологию (Express, PHP)"
+  recommendation: "Удалить заголовок X-Powered-By"
+  condition:
+    method: "get"
+
+# === Группа 5: Бизнес-логика и Rate Limiting (6 правил) ===
+- name: "Rate Limiting Not Implemented"
+  severity: "high"
+  description: "Нет ограничений на количество запросов, возможен DoS или перебор"
+  recommendation: "Внедрить rate limiting (например, 100 запросов в минуту)"
+  condition:
+    method: "get"
+
+- name: "Brute Force Protection Missing"
+  severity: "high"
+  description: "Нет защиты от перебора на эндпоинтах логина"
+  recommendation: "Добавить задержку или капчу после нескольких неудачных попыток"
+  condition:
+    method: "post"
+
+- name: "Excessive Data Exposure (Pagination Missing)"
+  severity: "medium"
+  description: "Эндпоинт возвращает все объекты без пагинации, возможен DoS"
+  recommendation: "Добавить пагинацию (limit, offset)"
+  condition:
+    method: "get"
+
+- name: "Sensitive Action Without Additional Verification"
+  severity: "high"
+  description: "Изменение пароля или email не требует подтверждения текущего пароля"
+  recommendation: "Требовать подтверждение текущего пароля для критических изменений"
+  condition:
+    method: "put"
+
+- name: "Admin Endpoint Without IP Restrictions"
+  severity: "high"
+  description: "Админ-эндпоинт доступен с любых IP, не ограничен по сети"
+  recommendation: "Ограничить доступ по IP-адресам или использовать VPN"
+  condition:
+    method: "get"
+
+- name: "Logging of Sensitive Data"
+  severity: "medium"
+  description: "В логах могут сохраняться пароли или токены"
+  recommendation: "Настроить логирование без чувствительных данных"
+  condition:
+    method: "get"
+
+# === Группа 6: Криптография и протоколы (7 правил) ===
+- name: "HTTP Used (Not HTTPS)"
+  severity: "critical"
+  description: "API доступен по HTTP без шифрования"
+  recommendation: "Перенаправлять HTTP на HTTPS, использовать HSTS"
+  condition:
+    method: "get"
+
+- name: "Weak Cipher Suites Allowed"
+  severity: "high"
+  description: "Разрешены слабые шифры (например, RC4, DES)"
+  recommendation: "Настроить сервер на использование только сильных шифров (AES-GCM, ChaCha20)"
+  condition:
+    method: "get"
+
+- name: "TLS 1.0/1.1 Allowed"
+  severity: "high"
+  description: "Разрешены устаревшие версии TLS"
+  recommendation: "Оставить только TLS 1.2 и 1.3"
+  condition:
+    method: "get"
+
+- name: "JWT with None Algorithm"
+  severity: "critical"
+  description: "JWT поддерживает алгоритм 'none', что позволяет подделать токен"
+  recommendation: "Отключить алгоритм 'none' на сервере"
+  condition:
+    has_security: true
+
+- name: "JWT with HS256 (Symmetric Key)"
+  severity: "medium"
+  description: "Используется симметричный ключ, который сложно безопасно распространять"
+  recommendation: "Перейти на асимметричные алгоритмы RS256 или ES256"
+  condition:
+    has_security: true
+
+- name: "Lack of Nonce in JWT"
+  severity: "medium"
+  description: "JWT не содержит nonce, что может позволить replay-атаки"
+  recommendation: "Добавить и проверять nonce"
+  condition:
+    has_security: true
+
+- name: "CSRF Protection Missing"
+  severity: "medium"
+  description: "Нет защиты от CSRF (например, anti-CSRF токена)"
+  recommendation: "Использовать anti-CSRF токены или double-submit cookies"
+  condition:
+    method: "post"

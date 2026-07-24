@@ -1,73 +1,62 @@
-with open('desktop_app/main_window.py', 'r', encoding='utf-8') as f:
-    content = f.read()
+import sys
+import re
 
-# Находим место для вставки (после on_mode_changed)
-old_code = '''    def on_mode_changed(self, mode):
-        if mode == 'cloud':
-            self.api_key_input.setVisible(True)
-            if self.api_key:
-                self.api_key_input.setText(self.api_key)
-        else:
-            self.api_key_input.setVisible(False)'''
+filename = "main_window.py"
+with open(filename, 'r') as f:
+    lines = f.readlines()
 
-new_code = '''    def on_mode_changed(self, mode):
-        if mode == 'cloud':
-            self.api_key_input.setVisible(True)
-            if self.api_key:
-                self.api_key_input.setText(self.api_key)
-        else:
-            self.api_key_input.setVisible(False)
+# Найдём последний метод класса MainWindow (поищем def, начиная с конца)
+insert_index = None
+for i in range(len(lines)-1, -1, -1):
+    # Ищем строки, которые начинаются с def и имеют отступ 4 пробела (внутри класса)
+    if re.match(r'^    def ', lines[i]):
+        insert_index = i
+        break
 
-    def show_extra_options(self):
-        """Показать дополнительные опции сканирования"""
-        dlg = QDialog(self)
-        dlg.setWindowTitle("Дополнительные опции")
-        dlg.setMinimumWidth(400)
-        
-        layout = QFormLayout(dlg)
-        
-        # Таймаут запросов
-        timeout_spin = QSpinBox()
-        timeout_spin.setRange(5, 120)
-        timeout_spin.setValue(self.settings.get('timeout', 30))
-        timeout_spin.setSuffix(" сек")
-        layout.addRow("Таймаут запросов:", timeout_spin)
-        
-        # Количество потоков
-        threads_spin = QSpinBox()
-        threads_spin.setRange(1, 20)
-        threads_spin.setValue(self.settings.get('threads', 5))
-        layout.addRow("Количество потоков:", threads_spin)
-        
-        # Задержка между запросами
-        delay_spin = QSpinBox()
-        delay_spin.setRange(0, 5000)
-        delay_spin.setValue(self.settings.get('delay', 100))
-        delay_spin.setSuffix(" мс")
-        layout.addRow("Задержка между запросами:", delay_spin)
-        
-        # Проверять только GET
-        get_only_cb = QCheckBox()
-        get_only_cb.setChecked(self.settings.get('get_only', False))
-        layout.addRow("Только GET запросы:", get_only_cb)
-        
-        # Кнопки OK/Cancel
-        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        btn_box.accepted.connect(dlg.accept)
-        btn_box.rejected.connect(dlg.reject)
-        layout.addRow(btn_box)
-        
-        if dlg.exec_() == QDialog.Accepted:
-            self.settings['timeout'] = timeout_spin.value()
-            self.settings['threads'] = threads_spin.value()
-            self.settings['delay'] = delay_spin.value()
-            self.settings['get_only'] = get_only_cb.isChecked()
-            save_settings(self.settings)
-            QMessageBox.information(self, "Опции", "✅ Дополнительные опции сохранены!")'''
+if insert_index is None:
+    print("❌ Не найден метод класса MainWindow")
+    sys.exit(1)
 
-content = content.replace(old_code, new_code)
+# Проверяем, есть ли уже метод _load_keys
+for line in lines:
+    if 'def _load_keys' in line:
+        print("✅ Метод _load_keys уже существует, ничего не делаем")
+        sys.exit(0)
 
-with open('desktop_app/main_window.py', 'w', encoding='utf-8') as f:
-    f.write(content)
+# Определяем метод
+indent = '    '
+method_lines = [
+    f'\n{indent}def _load_keys(self):\n',
+    f'{indent}    """Загружает ключи из файлов и применяет их."""\n',
+    f'{indent}    try:\n',
+    f'{indent}        import os, sys\n',
+    f'{indent}        if getattr(sys, "frozen", False):\n',
+    f'{indent}            base = sys._MEIPASS\n',
+    f'{indent}        else:\n',
+    f'{indent}            base = os.path.dirname(os.path.abspath(__file__))\n',
+    f'{indent}        for key_file, key_name in [("premium_key.txt", "premium"), ("enterprise_key.txt", "enterprise"), ("api_key.txt", "api")]:\n',
+    f'{indent}            path = os.path.join(base, "config", key_file)\n',
+    f'{indent}            if os.path.exists(path):\n',
+    f'{indent}                with open(path, "r") as f:\n',
+    f'{indent}                    key = f.read().strip()\n',
+    f'{indent}                    if key_name == "api":\n',
+    f'{indent}                        self.api_key = key\n',
+    f'{indent}                        if hasattr(self, "api_key_input"):\n',
+    f'{indent}                            self.api_key_input.setText(key)\n',
+    f'{indent}                        self.settings["api_key"] = key\n',
+    f'{indent}                    else:\n',
+    f'{indent}                        self.license_valid[key_name] = True\n',
+    f'{indent}                        self.settings[f"{key_name}_key"] = key\n',
+    f'{indent}        self.update_usage_status()\n',
+    f'{indent}        print("[DEBUG] _load_keys: ключи успешно загружены")\n',
+    f'{indent}    except Exception as e:\n',
+    f'{indent}        print(f"[ERROR] _load_keys: {{e}}")\n',
+]
 
-print("✅ Метод show_extra_options добавлен!")
+# Вставляем метод перед последним методом
+new_lines = lines[:insert_index] + method_lines + lines[insert_index:]
+
+with open(filename, 'w') as f:
+    f.writelines(new_lines)
+
+print("✅ Метод _load_keys добавлен в класс MainWindow")

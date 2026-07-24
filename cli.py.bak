@@ -17,35 +17,6 @@ from scanner.core import APIScanner
 async def scan(target, scan_type='basic'):
     scanner = APIScanner(base_url=target, scan_type=scan_type)
     results = await scanner.run_scan()
-    spec = None
-    try:
-        # Загружаем спецификацию для валидации
-        from validator import load_spec_file, validate_spec
-        import os, tempfile
-        # Определяем тип источника
-        from urllib.parse import urlparse
-        parsed = urlparse(target)
-        if parsed.scheme in ('http', 'https'):
-            import requests
-            resp = requests.get(target, timeout=10)
-            resp.raise_for_status()
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
-                tmp.write(resp.text)
-                tmp_path = tmp.name
-            spec = load_spec_file(tmp_path)
-            os.unlink(tmp_path)
-        else:
-            spec = load_spec_file(target)
-        if spec:
-            is_valid, msg = validate_spec(spec)
-            if not is_valid:
-                print(f"⚠️ {msg}")
-                print("⚠️ Сканирование продолжается, но результаты могут быть некорректными.")
-            else:
-                print(f"✅ {msg}")
-    except Exception as e:
-        print(f"⚠️ Не удалось выполнить валидацию: {e}")
-    
     return results
 
 def generate_html_from_results(results, target):

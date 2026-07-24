@@ -3,7 +3,13 @@ import json
 import os
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scans.db")
+def get_db_path():
+    home = os.path.expanduser("~")
+    app_support = os.path.join(home, "Library", "Application Support", "APIScannerPro")
+    os.makedirs(app_support, exist_ok=True)   # создаём папку, если её нет
+    return os.path.join(app_support, "scans.db")
+
+DB_PATH = get_db_path()
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -14,7 +20,7 @@ def init_db():
             target TEXT,
             scan_type TEXT,
             timestamp TEXT,
-            results TEXT,   -- JSON-строка с результатами
+            results TEXT,
             count INTEGER
         )
     ''')
