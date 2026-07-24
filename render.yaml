@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: api-security-scanner
+    runtime: python
+    repo: https://github.com/MariaPruteanu/api-security-scanner
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
