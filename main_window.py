@@ -461,6 +461,10 @@ class SettingsDialog(QDialog):
         self.settings['enterprise_key'] = self.enterprise_key_edit.text()
         self.settings['api_url'] = self.api_url_edit.text()
         self.settings['language'] = self.lang_combo.currentText()
+<<<<<<< HEAD
+=======
+        save_settings(self.settings)
+>>>>>>> 05db96294ade776bf04401527428846dc52b3428
         from i18n import set_language
         set_language(self.settings['language'])
         parent = self.parent()
@@ -819,8 +823,11 @@ class MainWindow(QMainWindow):
                     else:
                         QMessageBox.warning(self, "Ошибка", f"Неверный ключ для {scan_type.capitalize()}.")
                         return
+<<<<<<< HEAD
                         QMessageBox.warning(self, "Ошибка", f"Неверный ключ для {scan_type.capitalize()}.")
                         return
+=======
+>>>>>>> 05db96294ade776bf04401527428846dc52b3428
 
             if mode == 'local':
                 if scan_type in ("premium", "enterprise") and not self.license_valid.get(scan_type, False):
@@ -1039,6 +1046,7 @@ class MainWindow(QMainWindow):
         dlg = SettingsDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.settings = load_settings()
+<<<<<<< HEAD
         # Загружаем сохранённые ключи из настроек
         if self.settings.get('premium_key') and LicenseManager.validate_key(self.settings['premium_key'], 'premium'):
             self.license_valid['premium'] = True
@@ -1046,6 +1054,8 @@ class MainWindow(QMainWindow):
         if self.settings.get('enterprise_key') and LicenseManager.validate_key(self.settings['enterprise_key'], 'enterprise'):
             self.license_valid['enterprise'] = True
             print("[DEBUG] Enterprise ключ загружен из настроек")
+=======
+>>>>>>> 05db96294ade776bf04401527428846dc52b3428
             self.apply_theme()
             self.api_key = self.settings.get('api_key', '')
             self.api_url = self.settings.get('api_url', 'http://127.0.0.1:8000')

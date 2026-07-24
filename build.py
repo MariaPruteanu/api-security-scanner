@@ -24,7 +24,14 @@ def build():
         '--add-data=stripe_payment.py:.',
         '--add-data=web:web',
         '--add-data=USER_GUIDE.txt:.',
+<<<<<<< HEAD
         '--add-data=/Users/lenovo1/Library/Python/3.9/lib/python/site-packages/PyQt5/Qt5/plugins:PyQt5/Qt5/plugins',
+=======
+        import PyQt5
+import os
+pyqt5_plugins = os.path.join(os.path.dirname(PyQt5.__file__), 'Qt5', 'plugins')
+f'--add-data={pyqt5_plugins}:PyQt5/Qt5/plugins' ,
+>>>>>>> 05db96294ade776bf04401527428846dc52b3428
         '--hidden-import=reportlab',
         '--hidden-import=matplotlib',
         '--hidden-import=jinja2',

@@ -1,3 +1,4 @@
+import sys
 import os
 import yaml
 from typing import List, Dict
@@ -5,9 +6,14 @@ from typing import List, Dict
 class RulesLoader:
     def __init__(self, rules_dir: str = None):
         if rules_dir is None:
-            # Корень проекта – это папка, содержащая папку scanner
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.rules_dir = os.path.join(base_dir, "rules")
+            # Поддержка PyInstaller: используем sys._MEIPASS если приложение упаковано
+            import sys
+            if getattr(sys, 'frozen', False):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            # Правила лежат в папке scanner/rules
+            self.rules_dir = os.path.join(base_dir, "scanner", "rules")
         else:
             self.rules_dir = rules_dir
         self.rules: List[Dict] = []
@@ -56,3 +62,7 @@ class RulesLoader:
             return [r for r in self.rules if r.get('tier', 'basic') in ('basic', 'premium')]
         else:
             return self.rules
+
+    def get_all_rules(self):
+        """Возвращает все загруженные правила"""
+        return self.rules

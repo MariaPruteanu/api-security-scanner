@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -20,9 +21,18 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Qt (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install qt@5
+          echo "Qt5_DIR=$(brew --prefix qt@5)/lib/cmake/Qt5" >> $GITHUB_ENV
+          echo "PATH=$(brew --prefix qt@5)/bin:$PATH" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install "PyQt5>=5.15.11"
+          pip install -r requirements.txt --no-deps
           pip install pyinstaller
 
       - name: Build with PyInstaller
