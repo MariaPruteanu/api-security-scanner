@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Security Scanner Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; padding: 60px 0; }
+        .header h1 { font-size: 52px; font-weight: 800; background: linear-gradient(135deg, #58a6ff, #3fb950); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { font-size: 22px; color: #8b949e; margin-top: 16px; }
+        .btn-primary { display: inline-block; background: #238636; color: #fff; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 18px; margin-top: 20px; border: none; cursor: pointer; }
+        .btn-primary:hover { background: #2ea043; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 60px 0; }
+        .feature { background: #161b22; padding: 28px 20px; border-radius: 12px; border: 1px solid #30363d; text-align: center; }
+        .feature h3 { color: #58a6ff; margin-bottom: 8px; }
+        .feature p { color: #8b949e; font-size: 15px; }
+        .pricing { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 60px 0; }
+        .plan { background: #161b22; padding: 30px; border-radius: 12px; border: 1px solid #30363d; width: 240px; text-align: center; }
+        .plan h3 { font-size: 22px; color: #58a6ff; }
+        .plan .price { font-size: 32px; font-weight: 700; color: #f0f6fc; margin: 12px 0; }
+        .plan .price small { font-size: 16px; color: #8b949e; font-weight: 400; }
+        .plan ul { list-style: none; margin: 16px 0; color: #8b949e; font-size: 14px; }
+        .plan ul li { padding: 4px 0; }
+        .plan .btn-secondary { display: inline-block; background: #30363d; color: #c9d1d9; padding: 10px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        .plan .btn-secondary:hover { background: #4a4a6a; }
+        .footer { text-align: center; padding: 40px 0; color: #8b949e; font-size: 14px; border-top: 1px solid #30363d; margin-top: 60px; }
+        .badge { display: inline-block; background: #238636; color: #fff; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-top: 8px; }
+        .download-section { text-align: center; margin: 40px 0; padding: 40px; background: #161b22; border-radius: 12px; border: 1px solid #30363d; }
+        .download-section h2 { font-size: 28px; margin-bottom: 16px; }
+        .btn-download { display: inline-block; background: #238636; color: #fff; padding: 16px 48px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 20px; }
+        .btn-download:hover { background: #2ea043; }
+        .btn-download small { display: block; font-size: 13px; font-weight: 400; opacity: 0.8; margin-top: 4px; }
+        .github-link { color: #58a6ff; text-decoration: none; }
+        .github-link:hover { text-decoration: underline; }
+        .scroll-animate { opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s ease forwards; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header class="header">
+        <h1>🛡️ API Security Scanner Pro</h1>
+        <p>Сканируйте OpenAPI, Swagger и Postman спецификации за 2 минуты</p>
+        <a href="#download" class="btn-primary">⬇️ Скачать бесплатно</a>
+        <div style="margin-top:12px;"><span class="badge">🔓 Free tier: 5 scans/month</span></div>
+    </header>
+
+    <!-- FEATURES -->
+    <div class="features">
+        <div class="feature scroll-animate"><h3>🔍 100+ правил</h3><p>OWASP API Security Top 10</p></div>
+        <div class="feature scroll-animate"><h3>📄 Отчёты</h3><p>PDF, HTML, JSON с графиками</p></div>
+        <div class="feature scroll-animate"><h3>☁️ Облачный режим</h3><p>Сканирование через бэкенд</p></div>
+        <div class="feature scroll-animate"><h3>🔑 CI/CD</h3><p>CLI и Docker для автоматизации</p></div>
+        <div class="feature scroll-animate"><h3>🌍 Международные платежи</h3><p>DeFi (USDT/Solana) + Boosty</p></div>
+        <div class="feature scroll-animate"><h3>⚡ Быстро</h3><p>Результаты за 30 секунд</p></div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="pricing">
+        <div class="plan scroll-animate">
+            <h3>🆓 Free</h3>
+            <div class="price">0 ₽</div>
+            <ul><li>✅ 5 сканирований/месяц</li><li>✅ Базовые правила</li><li>✅ HTML-отчёт</li></ul>
+            <a href="#download" class="btn-secondary">Начать</a>
+        </div>
+        <div class="plan scroll-animate" style="border-color:#58a6ff;">
+            <h3>⭐ Premium</h3>
+            <div class="price">9 USDT <small>/ месяц</small></div>
+            <div style="font-size:14px;color:#8b949e;">или 74.25 USDT / год (-25%)</div>
+            <ul><li>✅ Безлимит сканирований</li><li>✅ Все 100+ правил</li><li>✅ PDF-отчёты с графиками</li><li>✅ Приоритетная поддержка</li></ul>
+            <a href="#download" class="btn-secondary">Купить</a>
+        </div>
+        <div class="plan scroll-animate" style="border-color:#f0883e;">
+            <h3>🏢 Enterprise</h3>
+            <div class="price">$199 <small>/ месяц</small></div>
+            <ul><li>✅ Всё из Premium</li><li>✅ Кастомные правила</li><li>✅ On-premise установка</li><li>✅ Обучение и SLA</li></ul>
+            <a href="#download" class="btn-secondary">Связаться</a>
+        </div>
+    </div>
+
+    <!-- DOWNLOAD -->
+    <div id="download" class="download-section scroll-animate">
+        <h2>📦 Скачать приложение</h2>
+        <p style="color:#8b949e; margin-bottom:20px;">Доступно для macOS (Windows и Linux — скоро)</p>
+        <a href="https://github.com/MariaPruteanu/api-security-scanner/releases" class="btn-download">
+            ⬇️ Скачать для macOS
+            <small>.app + запускатель</small>
+        </a>
+        <div style="margin-top:20px;">
+            <a href="https://github.com/MariaPruteanu/api-security-scanner" class="github-link">🔗 GitHub репозиторий</a>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © 2026 API Security Scanner Pro. Сделано с ❤️<br>
+        <small>Автор: Maria Pruteanu</small>
+    </div>
+
+</div>
+
+<script>
+    // Плавное появление элементов при прокрутке
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
