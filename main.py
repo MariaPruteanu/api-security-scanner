@@ -144,3 +144,14 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+from defi_payment import defi
+
+@app.get("/api/payment/defi/info")
+async def get_defi_payment_info():
+    """Возвращает информацию для оплаты через DeFi."""
+    return defi.get_payment_info()
+
+@app.post("/api/payment/defi/check")
+async def check_defi_payment(tx_hash: str):
+    """Проверяет статус транзакции."""
+    return defi.check_payment(tx_hash)
