@@ -7,6 +7,7 @@ def build():
     args = [
         'main_window.py',
         '--name=APIScannerPro',
+        '--onefile',
         '--windowed',
         '--add-data=scanner:scanner',
         '--add-data=rules:rules',
@@ -24,14 +25,8 @@ def build():
         '--add-data=stripe_payment.py:.',
         '--add-data=web:web',
         '--add-data=USER_GUIDE.txt:.',
-<<<<<<< HEAD
+        '--add-data=validator.py:.',
         '--add-data=/Users/lenovo1/Library/Python/3.9/lib/python/site-packages/PyQt5/Qt5/plugins:PyQt5/Qt5/plugins',
-=======
-        import PyQt5
-import os
-pyqt5_plugins = os.path.join(os.path.dirname(PyQt5.__file__), 'Qt5', 'plugins')
-f'--add-data={pyqt5_plugins}:PyQt5/Qt5/plugins' ,
->>>>>>> 05db96294ade776bf04401527428846dc52b3428
         '--hidden-import=reportlab',
         '--hidden-import=matplotlib',
         '--hidden-import=jinja2',
@@ -39,9 +34,9 @@ f'--add-data={pyqt5_plugins}:PyQt5/Qt5/plugins' ,
         '--hidden-import=stripe',
         '--hidden-import=desktop_app.settings',
         '--hidden-import=key_integration',
+        '--hidden-import=openapi_spec_validator',
         '--collect-all=reportlab',
         '--collect-all=matplotlib',
-        '--osx-bundle-identifier=com.yourcompany.apiscannerpro',
     ]
     if system == 'Darwin':
         args.append('--icon=app_icon.icns')
