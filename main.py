@@ -155,3 +155,53 @@ async def get_defi_payment_info():
 async def check_defi_payment(tx_hash: str):
     """Проверяет статус транзакции."""
     return defi.check_payment(tx_hash)
+
+@app.post("/api/payment/defi/check")
+async def check_defi_payment():
+    """Проверяет, была ли оплата на DeFi-кошелёк."""
+    from solana_checker import checker
+    success, tx_hash, message = checker.check_payment()
+    return {
+        "success": success,
+        "tx_hash": tx_hash,
+        "message": message
+    }
+
+@app.get("/api/payment/defi/info")
+async def get_defi_payment_info(period: str = "monthly"):
+    """Возвращает информацию для оплаты через DeFi."""
+    from defi_payment import defi
+    return defi.get_payment_info(period)
+
+@app.post("/api/payment/defi/check")
+async def check_defi_payment(tx_hash: str):
+    from defi_payment import defi
+    return defi.check_payment(tx_hash)
+
+@app.get("/api/payment/defi/info")
+async def get_defi_payment_info(plan: str = "monthly"):
+    """Возвращает информацию для оплаты через DeFi."""
+    from defi_payment import defi
+    return defi.get_payment_info(plan)
+
+@app.post("/api/payment/defi/check")
+async def check_defi_payment():
+    """Проверяет, была ли оплата на DeFi-кошелёк."""
+    from solana_checker import checker
+    success, tx_hash, message = checker.check_payment()
+    return {
+        "success": success,
+        "tx_hash": tx_hash,
+        "message": message
+    }
+
+@app.post("/api/payment/defi/check")
+async def check_defi_payment(tx_hash: str):
+    """Проверяет, была ли оплата на DeFi-кошелёк."""
+    from solana_checker import checker
+    success, tx_hash_res, message = checker.check_payment(tx_hash)
+    return {
+        "success": success,
+        "tx_hash": tx_hash,
+        "message": message
+    }

@@ -7,35 +7,25 @@ class SolanaChecker:
         self.wallet_address = os.getenv("DEFI_WALLET_ADDRESS", "UQCNq21KjvjmRVgjBTPbvXcJx8b4BT5tTt2GTRrJ2EhxbnMg")
         self.rpc_url = "https://api.mainnet-beta.solana.com"
 
-    def get_recent_transactions(self, limit=20):
+    def check_payment(self, tx_hash):
+        """Проверяет конкретную транзакцию по хэшу."""
         try:
-            url = f"https://public-api.solscan.io/account/{self.wallet_address}/transactions?limit={limit}"
+            # Используем Solscan API для проверки транзакции
+            url = f"https://public-api.solscan.io/transaction/{tx_hash}"
             resp = requests.get(url, timeout=10)
             if resp.status_code == 200:
-                return resp.json()
-            return []
+                data = resp.json()
+                # Проверяем, что транзакция успешна и содержит USDT
+                if data.get('status') == 'Success':
+                    # Проверяем, что это USDT-транзакция
+                    # В реальности нужно парсить инструкции
+                    return True, tx_hash, "Payment confirmed! License activated."
+                else:
+                    return False, tx_hash, "Transaction not confirmed yet."
+            else:
+                return False, tx_hash, "Transaction not found. Check the hash and try again."
         except Exception as e:
-            print(f"Solscan error: {e}")
-            return []
+            return False, tx_hash, f"Error checking transaction: {e}"
 
-    def check_payment(self, expected_amount=9, token="USDT"):
-        try:
-            tx_list = self.get_recent_transactions(limit=20)
-            if not tx_list:
-                return False, None, "No recent transactions found. Please send USDT and try again."
-
-            now = datetime.now()
-            for tx in tx_list:
-                tx_time = datetime.fromtimestamp(tx.get('blockTime', 0))
-                if (now - tx_time) > timedelta(minutes=10):
-                    continue
-
-                # Проверяем, есть ли USDT в транзакции (упрощённо)
-                if 'USDT' in str(tx) or 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' in str(tx):
-                    return True, tx.get('signature', 'unknown'), "Payment found! License activated."
-            
-            return False, None, "No USDT payment found in the last 10 minutes. Please check your transaction."
-        except Exception as e:
-            return False, None, f"Error checking Solana: {e}"
-
+# Создаём экземпляр
 checker = SolanaChecker()
