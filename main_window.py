@@ -620,6 +620,9 @@ class MainWindow(QMainWindow):
         row2.addWidget(self.stop_btn)
 
         self.pro_btn = QPushButton("Buy Pro")
+        self.license_btn = QPushButton("Enter Key")
+        self.license_btn.clicked.connect(self.enter_license_key)
+        row2.addWidget(self.license_btn)
         self.pro_btn.clicked.connect(self.buy_pro)
         row2.addWidget(self.pro_btn)
 
@@ -1149,6 +1152,34 @@ After payment, click "Check payment".
             import requests
             self.append_log("Checking payment status...")
             resp = requests.post(f"{self.api_url}/api/payment/defi/check", timeout=60)
+            # Запрашиваем у пользователя tx_hash
+            tx_hash, ok = QInputDialog.getText(
+                self, "Transaction Hash",
+                "Enter the transaction hash from Solana explorer:",
+                QLineEdit.Normal
+            )
+            if not ok or not tx_hash:
+                QMessageBox.warning(self, "Warning", "Transaction hash is required.")
+                return
+            resp = requests.post(
+                f"{self.api_url}/api/payment/defi/check",
+                params={"tx_hash": tx_hash},
+                timeout=60
+            )
+            # Запрашиваем у пользователя tx_hash
+            tx_hash, ok = QInputDialog.getText(
+                self, "Transaction Hash",
+                "Enter the transaction hash from Solana explorer:",
+                QLineEdit.Normal
+            )
+            if not ok or not tx_hash:
+                QMessageBox.warning(self, "Warning", "Transaction hash is required.")
+                return
+            resp = requests.post(
+                f"{self.api_url}/api/payment/defi/check",
+                params={"tx_hash": tx_hash},
+                timeout=60
+            )
             self.append_log(f"Response status: {resp.status_code}")
             if resp.status_code == 200:
                 data = resp.json()
@@ -1173,7 +1204,33 @@ After payment, click "Check payment".
             QMessageBox.critical(self, "Connection Error", "Could not connect to the backend. Make sure it's running.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Check error: {e}")
-def closeEvent(self, event):
+
+
+    def enter_license_key(self):
+        """Открывает диалог для ручного ввода лицензионного ключа."""
+        key, ok = QInputDialog.getText(
+            self, "Enter License Key",
+            "Paste your license key:",
+            QLineEdit.Password
+        )
+        if ok and key:
+            # Пробуем определить тип ключа
+            if key.startswith("PREMIUM-") and LicenseManager.validate_key(key, "premium"):
+                self.license_valid["premium"] = True
+                self.settings["premium_key"] = key
+                save_settings(self.settings)
+                self.update_usage_status()
+                QMessageBox.information(self, "Success", "Premium license activated!")
+            elif key.startswith("ENTERPRISE-") and LicenseManager.validate_key(key, "enterprise"):
+                self.license_valid["enterprise"] = True
+                self.settings["enterprise_key"] = key
+                save_settings(self.settings)
+                self.update_usage_status()
+                QMessageBox.information(self, "Success", "Enterprise license activated!")
+            else:
+                QMessageBox.warning(self, "Error", "Invalid license key. Please check and try again.")
+
+    def closeEvent(self, event):
         self.settings['last_target'] = self.target_input.text().strip()
         save_settings(self.settings)
         event.accept()
@@ -1187,3 +1244,26 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+    def enter_license_key(self):
+        """Открывает диалог для ручного ввода лицензионного ключа."""
+        key, ok = QInputDialog.getText(
+            self, "Enter License Key",
+            "Paste your license key:",
+            QLineEdit.Password
+        )
+        if ok and key:
+            if key.startswith("PREMIUM-") and LicenseManager.validate_key(key, "premium"):
+                self.license_valid["premium"] = True
+                self.settings["premium_key"] = key
+                save_settings(self.settings)
+                self.update_usage_status()
+                QMessageBox.information(self, "Success", "Premium license activated!")
+            elif key.startswith("ENTERPRISE-") and LicenseManager.validate_key(key, "enterprise"):
+                self.license_valid["enterprise"] = True
+                self.settings["enterprise_key"] = key
+                save_settings(self.settings)
+                self.update_usage_status()
+                QMessageBox.information(self, "Success", "Enterprise license activated!")
+            else:
+                QMessageBox.warning(self, "Error", "Invalid license key. Please check and try again.")
